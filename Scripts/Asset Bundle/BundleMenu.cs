@@ -86,6 +86,15 @@ namespace UWB_Texturing
         {
             BundleHandler.UnpackRoomTextureBundle();
         }
+
+        [UnityEditor.MenuItem("Room Texture/Instantiate Room")]
+        public static void InstantiateRoom()
+        {
+            BundleHandler.InstantiateRoom();
+            //string[] orientationFileLines = File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()));
+            //GameObject room = RoomModel.BuildRoomObject(orientationFileLines);
+        }
+
         
         [UnityEditor.MenuItem("Room Texture/Remove Assets/All")]
         public static void ClearAllRoomAssets()

@@ -73,7 +73,7 @@ namespace UWB_Texturing
             }
         }
         
-        public static GameObject BuildRoomObject(TextAsset orientationAsset)
+        public static GameObject BuildRoomObject(string[] orientationFileLines)
         {
             if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory()))
             {
@@ -85,7 +85,7 @@ namespace UWB_Texturing
             
             // Load up the information stored from mesh supplementary information 
             // to correct for Hololens mesh translation and orientation.
-            CustomOrientation.Load(orientationAsset.text.Split('\n'), out positionArray, out rotationArray);
+            CustomOrientation.Load(orientationFileLines, out positionArray, out rotationArray);
 
             GameObject roomObject = new GameObject();
             roomObject.name = Config.RoomObject.GameObjectName;

@@ -33,54 +33,148 @@ namespace UWB_Texturing
         /// </summary>
         public static void UnpackRoomTextureBundle()
         {
-            // Ensure that previous room items (resources & game objects) are deleted
-            RemoveRoomObject();
             RemoveRoomResources();
-            
+
             AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename()));
 
             // Extract specific text file assets
             // NOTE: Asset name has to be hardcoded.
             TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset("RoomMatrices".ToLower()) as TextAsset;
+            TextAsset roomOrientationTextAsset = roomTextureBundle.LoadAsset("RoomOrientation".ToLower()) as TextAsset;
+            TextAsset roomMeshesTextAsset = roomTextureBundle.LoadAsset("RoomMesh".ToLower()) as TextAsset;
+            File.WriteAllLines(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()), roomMatricesTextAsset.text.Split('\n'));
+            
+            //// Extract camera matrices
+            //Matrix4x4[] WorldToCameraMatrixArray;
+            //Matrix4x4[] ProjectionMatrixArray;
+            //Matrix4x4[] LocalToWorldMatrixArray;
+            //MatrixArray.LoadMatrixArrays_FromAssetBundle(roomMatricesTextAsset, out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
 
+            // Extract textures
+            Texture2D[] rawBundledTexArray = roomTextureBundle.LoadAllAssets<Texture2D>();
+            for(int i = 0; i < rawBundledTexArray.Length; i++)
+            {
+                File.WriteAllBytes(Config.Images.CompileAbsoluteAssetPath(Config.Images.CompileFilename(Config.Images.GetIndex(rawBundledTexArray[i].name))), rawBundledTexArray[i].EncodeToPNG());
+            }
+
+            //Texture2D[] bundledTexArray = new Texture2D[rawBundledTexArray.Length];
+            //for(int i = 0; i < rawBundledTexArray.Length; i++)
+            //{
+            //    int imageIndex = Config.Images.GetIndex(rawBundledTexArray[i].name);
+            //    bundledTexArray[imageIndex] = rawBundledTexArray[i];
+            //}
+
+            //if (bundledTexArray == null)
+            //{
+            //    Debug.Log("Null tex array");
+            //}
+            //else
+            //{
+            //    Debug.Log("Bundled tex array size = " + bundledTexArray.Length);
+            //}
+
+//            // Create Texture2DArray, copy items from text asset into array, 
+//            // and push into shader
+//            Texture2DArray TextureArray = new Texture2DArray(bundledTexArray[0].width, bundledTexArray[0].height, bundledTexArray.Length, bundledTexArray[0].format, false);
+//            if (WorldToCameraMatrixArray != null
+//                && ProjectionMatrixArray != null
+//                && LocalToWorldMatrixArray != null
+//                && bundledTexArray != null
+//                && TextureArray != null)
+//            {
+//                for (int i = 0; i < bundledTexArray.Length; i++)
+//                {
+//                    Graphics.CopyTexture(bundledTexArray[i], 0, 0, TextureArray, i, 0);
+//                }
+
+//#if UNITY_EDITOR
+//                if (!Directory.Exists(Config.Texture2DArray.CompileAbsoluteAssetDirectory()))
+//                {
+//                    Directory.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory());
+//                }
+
+//                // Save Texture2DArray as asset if appropriate
+//                AssetDatabase.CreateAsset(TextureArray, Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename()));
+//                AssetDatabase.SaveAssets();
+//#endif
+                
+//                // Extract room mesh
+//                TextAsset meshAsset = roomTextureBundle.LoadAsset("RoomMesh".ToLower()) as TextAsset;
+//                CustomMesh.LoadMesh(meshAsset);
+
+//                // Generate materials
+//                MaterialManager.GenerateRoomMaterials(TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
+//            }
+//            else
+//            {
+//                roomTextureBundle.Unload(true);
+//                throw new System.Exception("Asset bundle unload failed.");
+//            }
+
+            // Unload asset bundle so future loads will not fail
+            roomTextureBundle.Unload(true);
+
+#if UNITY_EDITOR
+            AssetDatabase.Refresh();
+#endif
+        }
+
+        public static void CreateRoomResources()
+        {
+            // Ensure that previous room items (resources) are deleted
+            RemoveRoomResources();
+            
             // Extract camera matrices
             Matrix4x4[] WorldToCameraMatrixArray;
             Matrix4x4[] ProjectionMatrixArray;
             Matrix4x4[] LocalToWorldMatrixArray;
-            MatrixArray.LoadMatrixArrays_FromAssetBundle(roomMatricesTextAsset, out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
-            
+            MatrixArray.LoadMatrixArrays_AssetsStored(out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
+
             // Extract textures
-            //Texture2D[] bundledTexArray = roomTextureBundle.LoadAllAssets<Texture2D>();
-            Texture2D[] rawBundledTexArray = roomTextureBundle.LoadAllAssets<Texture2D>();
-            Texture2D[] bundledTexArray = new Texture2D[rawBundledTexArray.Length];
-            for(int i = 0; i < rawBundledTexArray.Length; i++)
+            Queue<Texture2D> rawTexQueue = new Queue<Texture2D>();
+            foreach(string filepath in Directory.GetFiles(Config.Images.CompileAbsoluteAssetDirectory()))
             {
-                int imageIndex = Config.Images.GetIndex(rawBundledTexArray[i].name);
-                //int imageIndex = int.Parse(rawBundledTexArray[i].name.Substring(Config.Images.FilenameWithoutExtension.Length));
-                bundledTexArray[imageIndex] = rawBundledTexArray[i];
+                if(filepath.Contains(Config.Images.FilenameWithoutExtension) && filepath.EndsWith(Config.Images.Extension))
+                {
+                    Texture2D tex = new Texture2D(1, 1);
+                    tex.LoadImage(File.ReadAllBytes(filepath));
+                    tex.name = Path.GetFileNameWithoutExtension(filepath);
+                    rawTexQueue.Enqueue(tex);
+                }
+            }
+            Texture2D[] rawTexArray = rawTexQueue.ToArray();
+            Texture2D[] sortedTexArray = new Texture2D[rawTexArray.Length];
+            for (int i = 0; i < rawTexArray.Length; i++)
+            {
+                int imageIndex = Config.Images.GetIndex(Path.GetFileNameWithoutExtension(rawTexArray[i].name));
+                sortedTexArray[imageIndex] = rawTexArray[i];
             }
 
-            if (bundledTexArray == null)
+            if (sortedTexArray == null)
             {
                 Debug.Log("Null tex array");
             }
             else
             {
-                Debug.Log("Bundled tex array size = " + bundledTexArray.Length);
+                Debug.Log("Bundled tex array size = " + sortedTexArray.Length);
             }
 
-            // Create Texture2DArray, copy items from text asset into array, 
-            // and push into shader
-            Texture2DArray TextureArray = new Texture2DArray(bundledTexArray[0].width, bundledTexArray[0].height, bundledTexArray.Length, bundledTexArray[0].format, false);
+            Debug.Log("About to create texture array");
+
+            // Create Texture2DArray
+            Texture2DArray TextureArray = new Texture2DArray(sortedTexArray[0].width, sortedTexArray[0].height, sortedTexArray.Length, sortedTexArray[0].format, false);
             if (WorldToCameraMatrixArray != null
                 && ProjectionMatrixArray != null
                 && LocalToWorldMatrixArray != null
-                && bundledTexArray != null
+                && sortedTexArray != null
                 && TextureArray != null)
             {
-                for (int i = 0; i < bundledTexArray.Length; i++)
+                Debug.Log("If statement entered.");
+
+                // Copy textures into texture2Darray
+                for (int i = 0; i < sortedTexArray.Length; i++)
                 {
-                    Graphics.CopyTexture(bundledTexArray[i], 0, 0, TextureArray, i, 0);
+                    Graphics.CopyTexture(sortedTexArray[i], 0, 0, TextureArray, i, 0);
                 }
 
 #if UNITY_EDITOR
@@ -93,40 +187,52 @@ namespace UWB_Texturing
                 AssetDatabase.CreateAsset(TextureArray, Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename()));
                 AssetDatabase.SaveAssets();
 #endif
-                
-                // Extract room mesh & info
-                // NOTE: Asset names have to be hardcoded.
-                TextAsset orientationAsset = roomTextureBundle.LoadAsset("RoomOrientation".ToLower()) as TextAsset;
-                TextAsset meshAsset = roomTextureBundle.LoadAsset("RoomMesh".ToLower()) as TextAsset;
-                CustomMesh.LoadMesh(meshAsset);
+
+                // Extract room mesh
+                CustomMesh.LoadMesh(Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename()));
 
                 // Generate materials
                 MaterialManager.GenerateRoomMaterials(TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
+            }
 
-                // Instantiate Room
-                GameObject RoomMesh = RoomModel.BuildRoomObject(orientationAsset);
 #if UNITY_EDITOR
-                // ERROR TESTING - REMOVE // GameObject RoomMesh = CustomMesh.InstantiateRoomObject(meshAsset, orientationAsset, true);
-#else
-                // ERROR TESTING - REMOVE // GameObject RoomMesh = CustomMesh.InstantiateRoomObject(meshAsset, orientationAsset, false);
+            AssetDatabase.Refresh();
 #endif
+        }
 
-                //RoomModel roomManager = RoomMesh.AddComponent<RoomModel>();
-                //roomManager.FirstTimeSetup(CrossPlatformNames.RoomObject.RecommendedShaderRefreshTime, TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
-
-                //GameObject.Find(RoomModel.GameObjectName).GetComponent<RoomModel>().BeginShaderRefreshCycle(RoomModel.RecommendedShaderRefreshTime, TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
-
-                // ERROR TESTING - REMOVE
-                //RoomModel.SetShaderParams(TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
-            }
-            else
+        public static void InstantiateRoom()
+        {
+            // Ensure resources are available
+            if(!File.Exists(Config.UnityMeshes.CompileAbsoluteAssetPath(Config.UnityMeshes.CompileFilename(0)))
+                || !File.Exists(Config.Material.CompileAbsoluteAssetPath(Config.Material.CompileFilename(0)))
+                || !File.Exists(Config.Texture2DArray.CompileAbsoluteAssetPath(Config.Texture2DArray.CompileFilename())))
             {
-                roomTextureBundle.Unload(true);
-                throw new System.Exception("Asset bundle unload failed.");
+                if(!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()))
+                    || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename())))
+                {
+                    // Grab the raw resources
+                    if (!File.Exists(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename())))
+                    {
+                        Debug.Log("Room resources for instantiating room cannot be found!");
+                        return;
+                    }
+                    UnpackRoomTextureBundle();
+                }
+                // Compile the necessary resources
+                CreateRoomResources();
             }
+            
+            // Ensure that previous room items (resources & game objects) are deleted
+            RemoveRoomObject();
+            
+            // Extract camera matrices
+            Matrix4x4[] WorldToCameraMatrixArray;
+            Matrix4x4[] ProjectionMatrixArray;
+            Matrix4x4[] LocalToWorldMatrixArray;
+            MatrixArray.LoadMatrixArrays_AssetsStored(out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
 
-            // Unload asset bundle so future loads will not fail
-            roomTextureBundle.Unload(true);
+            // Build room
+            RoomModel.BuildRoomObject(File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename())));
         }
 
         public static void UnpackFinalRoomTextureBundle()
@@ -135,14 +241,11 @@ namespace UWB_Texturing
             if (File.Exists(bundleFilepath)) {
 
                 // Ensure that previous room items (resources & game objects) are deleted
-                // ERROR TESTING - REIMPLEMENT AFTER BUG TESTING
-                //RemoveRoomObject();
-                //RemoveRoomResources();
-
-                Debug.Log("Bundle filepath = " + bundleFilepath);
+                RemoveRoomObject();
+                RemoveRoomResources();
+                
                 AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundleFilepath);
                 TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset("RoomMatrices".ToLower()) as TextAsset;
-                Debug.Log("roomMatrix filepath = " + Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()));
                 File.WriteAllText(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()), roomMatricesTextAsset.text);
                 
                 GameObject room = roomTextureBundle.LoadAsset(Config.Prefab.CompileFilename()) as GameObject;
@@ -151,12 +254,8 @@ namespace UWB_Texturing
                 // Destroy existing room script (Unity bug causes bad script reference? Or script HAS to be in resources?)
                 GameObject.Destroy(room.GetComponent<RoomModel>());
                 RoomModel roomModel = room.AddComponent<RoomModel>();
-
-                //===
-
-
+                
                 Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameWithoutExtension + Config.Texture2DArray.Extension) as Texture2DArray;
-                Debug.Log("Texture array loaded up. Depth = " + texArray.depth);
                 for(int i = 0; i < room.transform.childCount; i++)
                 {
                     GameObject child = room.transform.GetChild(i).gameObject;
@@ -170,110 +269,6 @@ namespace UWB_Texturing
                 // and not keep it open afterwards as long as the matrices are 
                 // dynamically saved
                 roomTextureBundle.Unload(false);
-
-//            // Extract materials
-//            Material[] rawRoomMaterials = roomTextureBundle.LoadAllAssets<Material>();
-//            // Reorganize to be in the correct order
-//            //Material[] roomMaterials = new Material[rawRoomMaterials.Length];
-//            for(int i = 0; i < rawRoomMaterials.Length; i++)
-//            {
-//                int trueIndex = CrossPlatformNames.Material.GetIndex(rawRoomMaterials[i].name);
-//                string filepath = CrossPlatformNames.Material.CompileAssetPath(CrossPlatformNames.Material.CompileAssetName(trueIndex));
-
-//#if UNITY_EDITOR
-
-//                AssetDatabase.CreateAsset(rawRoomMaterials[i], filepath);
-//                //roomMaterials[trueIndex] = Resources.Load(filepath) as Material;
-//#endif
-//            }
-
-//            // Extract room meshes
-//            Mesh[] rawRoomMeshes = roomTextureBundle.LoadAllAssets<Mesh>();
-//            for(int i = 0; i < rawRoomMeshes.Length; i++)
-//            {
-//                int trueIndex = CrossPlatformNames.UnityMeshes.GetIndex(rawRoomMeshes[i].name);
-//                string filepath = CrossPlatformNames.UnityMeshes.CompileLocalAssetPath(CrossPlatformNames.UnityMeshes.CompileMeshName(trueIndex));
-//                AssetDatabase.CreateAsset(rawRoomMeshes[i], filepath);
-//            }
-
-//            // Extract Texture2DArray
-//            AssetDatabase.CreateAsset(roomTextureBundle.LoadAsset<Texture2DArray>(CrossPlatformNames.Texture2DArray.
-
-//            // Extract room mesh & info
-//            // NOTE: Asset names have to be hardcoded.
-//            string meshInfoAssetName = CrossPlatformNames.Mesh.SupplementaryInfo.FilenameWithoutExtension.ToLower();
-//            TextAsset supplementaryInfoTextAsset = roomTextureBundle.LoadAsset(meshInfoAssetName) as TextAsset;
-//            string meshAssetName = CrossPlatformNames.Mesh.FilenameWithoutExtension.ToLower();
-//            TextAsset roomMeshTextAsset = roomTextureBundle.LoadAsset(meshAssetName) as TextAsset;
-//#if UNITY_EDITOR
-//            GameObject RoomMesh = CustomMesh.InstantiateRoomObject(roomMeshTextAsset, supplementaryInfoTextAsset, true);
-//#else
-//            GameObject RoomMesh = CustomMesh.InstantiateRoomObject(roomMeshTextAsset, supplementaryInfoTextAsset, false);
-//#endif
-
-//            // Extract specific text file assets
-//            // NOTE: Asset name has to be hardcoded.
-//            string matricesAssetName = CrossPlatformNames.Matrices.FilenameWithoutExtension.ToLower();
-//            TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset(matricesAssetName) as TextAsset;
-
-//            // Extract camera matrices
-//            Matrix4x4[] WorldToCameraMatrixArray;
-//            Matrix4x4[] ProjectionMatrixArray;
-//            Matrix4x4[] LocalToWorldMatrixArray;
-//            MatrixArray.LoadMatrixArrays_FromAssetBundle(roomMatricesTextAsset, out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
-
-
-//            // Extract textures
-//            Texture2D[] rawBundledTexArray = roomTextureBundle.LoadAllAssets<Texture2D>();
-//            Texture2D[] bundledTexArray = new Texture2D[rawBundledTexArray.Length];
-//            for (int i = 0; i < rawBundledTexArray.Length; i++)
-//            {
-//                int imageIndex = int.Parse(rawBundledTexArray[i].name.Substring(CrossPlatformNames.Images.Prefix.Length));
-//                bundledTexArray[imageIndex] = rawBundledTexArray[i];
-//            }
-
-//            if (bundledTexArray == null)
-//            {
-//                Debug.Log("Null tex array");
-//            }
-//            else
-//            {
-//                Debug.Log("Bundled tex array size = " + bundledTexArray.Length);
-//            }
-
-//            // Create Texture2DArray, copy items from text asset into array, 
-//            // and push into shader
-//            Texture2DArray TextureArray = new Texture2DArray(bundledTexArray[0].width, bundledTexArray[0].height, bundledTexArray.Length, bundledTexArray[0].format, false);
-//            if (WorldToCameraMatrixArray != null
-//                && ProjectionMatrixArray != null
-//                && LocalToWorldMatrixArray != null
-//                && bundledTexArray != null
-//                && RoomMesh != null
-//                && TextureArray != null)
-//            {
-//                for (int i = 0; i < bundledTexArray.Length; i++)
-//                {
-//                    Graphics.CopyTexture(bundledTexArray[i], 0, 0, TextureArray, i, 0);
-//                }
-
-//#if UNITY_EDITOR
-//                if (!Directory.Exists(CrossPlatformNames.Texture2DArray.AbsoluteAssetFolder))
-//                {
-//                    Directory.CreateDirectory(CrossPlatformNames.Texture2DArray.AbsoluteAssetFolder);
-//                }
-
-//                // Save Texture2DArray as asset if appropriate
-//                AssetDatabase.CreateAsset(TextureArray, CrossPlatformNames.Texture2DArray.LocalAssetPath);
-//                AssetDatabase.SaveAssets();
-//#endif
-
-//                RoomModel roomManager = RoomMesh.AddComponent<RoomModel>();
-//                roomManager.FirstTimeSetup(CrossPlatformNames.RoomObject.RecommendedShaderRefreshTime, TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
-
-//                //GameObject.Find(RoomModel.GameObjectName).GetComponent<RoomModel>().BeginShaderRefreshCycle(RoomModel.RecommendedShaderRefreshTime, TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
-
-//                // ERROR TESTING - REMOVE
-//                //RoomModel.SetShaderParams(TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
             }
             else
             {

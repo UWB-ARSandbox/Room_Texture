@@ -14,7 +14,7 @@ namespace UWB_Texturing
         public static string AbsoluteAssetRootFolder = Application.dataPath;
 #endif
 
-        public static string AssetSubFolder = "Room_Texture/Resources/Room";
+        public static string AssetSubFolder = "ASL/Room_Texture/Resources/Room";
 
         public static string CompileUnityAssetDirectory()
         {
