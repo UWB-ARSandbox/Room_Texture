@@ -109,8 +109,15 @@ namespace UWB_Texturing
                 // Set name
                 child.name = childMesh.name;
                 child.transform.parent = roomObject.transform;
+
+                // Add mesh collider
+                MeshCollider mc = child.AddComponent<MeshCollider>();
+                mc.sharedMesh = childMesh;
             }
             roomObject.AddComponent<RoomModel>();
+
+            // Integrate it into the UWB Network
+            roomObject.AddComponent<UWBPhotonTransformView>();
 
             return roomObject;
         }
