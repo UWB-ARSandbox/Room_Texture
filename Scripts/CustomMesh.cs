@@ -324,6 +324,8 @@ namespace UWB_Texturing
         {
             if (File.Exists(filepath))
             {
+                Debug.Log("Filepath for loading meshes = " + filepath);
+
                 LoadMesh(File.ReadAllLines(filepath));
             }
             else

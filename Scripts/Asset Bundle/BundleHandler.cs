@@ -191,6 +191,11 @@ namespace UWB_Texturing
                 // Extract room mesh
                 CustomMesh.LoadMesh(Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename()));
 
+                Debug.Log("Length of cam array = " + WorldToCameraMatrixArray.Length);
+                Debug.Log("Length of proj array = " + ProjectionMatrixArray.Length);
+                Debug.Log("Length of Local array = " + LocalToWorldMatrixArray.Length);
+                Debug.Log("Length of texture array = " + TextureArray.depth);
+
                 // Generate materials
                 MaterialManager.GenerateRoomMaterials(TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
             }

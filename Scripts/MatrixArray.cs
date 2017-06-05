@@ -116,6 +116,7 @@ namespace UWB_Texturing
         public static bool LoadMatrixArrays_AssetsStored(out Matrix4x4[] WorldToCameraMatrixArray, out Matrix4x4[] ProjectionMatrixArray, out Matrix4x4[] LocalToWorldMatrixArray)
         {
             string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
+            Debug.Log("Matrix array filepath = " + matrixArrayFilepath);
             if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename())))
             {
                 WorldToCameraMatrixArray = null;
@@ -124,7 +125,16 @@ namespace UWB_Texturing
                 return false;
             }
 
+            Debug.Log("Matrix array file found");
+
             string[] fileLines = File.ReadAllLines(matrixArrayFilepath);
+
+            Debug.Log(fileLines[0]);
+            Debug.Log(fileLines[1]);
+            Debug.Log(fileLines[2]);
+            Debug.Log(fileLines[3]);
+            Debug.Log(fileLines[4]);
+
             DeriveMatrixArrays(fileLines, out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
 
             return true;
@@ -233,15 +243,22 @@ namespace UWB_Texturing
             bool useProjList = false;
             bool useLocalToWorldList = false;
 
+            Debug.Log("Matrix array file found. # of fileLines = " + fileLines.Length);
+
             int lineCount = 0;
             while (lineCount < fileLines.Length)
             {
+                Debug.Log("Line = " + fileLines[lineCount]);
+
                 fileLines[lineCount] = fileLines[lineCount].TrimEnd();
 
                 // ID a matrix separator and look at the next line(s) to 
                 // determine what is written
                 if (fileLines[lineCount].Contains(MatrixSeparator))
                 {
+
+                    Debug.Log("Matrix separator found on line " + lineCount);
+
                     ++lineCount;
 
                     if (fileLines[lineCount].Contains(WorldToCameraMatrixID))
@@ -251,6 +268,8 @@ namespace UWB_Texturing
                         useWorldToCamList = true;
                         useProjList = false;
                         useLocalToWorldList = false;
+
+                        Debug.Log("WorldToCam matrix found");
                     }
                     else if (fileLines[lineCount].Contains(ProjectionMatrixID))
                     {
@@ -259,6 +278,8 @@ namespace UWB_Texturing
                         useProjList = true;
                         useWorldToCamList = false;
                         useLocalToWorldList = false;
+
+                        Debug.Log("Projection matrix found");
                     }
                     else if (fileLines[lineCount].Contains(LocalToWorldMatrixID))
                     {
@@ -267,9 +288,13 @@ namespace UWB_Texturing
                         useLocalToWorldList = true;
                         useWorldToCamList = false;
                         useProjList = false;
+
+                        Debug.Log("LocalToWorld matrix found");
                     }
                     else
                     {
+                        Debug.Log("Assuming matrix line. Line = " + fileLines[lineCount]);
+
                         // Extract the actual 4x4 matrix
                         Matrix4x4 mat = new Matrix4x4();
                         for (int i = 0; i < 4; i++)
@@ -289,6 +314,8 @@ namespace UWB_Texturing
                             }
                             ++lineCount;
                         }
+
+                        Debug.Log("Matrix read. fileLine = " + lineCount);
 
                         // Tack the matrix onto the appropriate list
                         if (useWorldToCamList)
@@ -315,6 +342,9 @@ namespace UWB_Texturing
             WorldToCameraMatrixArray = worldToCamList.ToArray();
             ProjectionMatrixArray = projList.ToArray();
             LocalToWorldMatrixArray = localToWorldList.ToArray();
+
+            Debug.Log("Immediately after processing, WorldToCam length = " + WorldToCameraMatrixArray.Length);
+            Debug.Log("Immediately after processing, WorldToCam list length = " + WorldToCameraMatrixArray.Length);
         }
 
         #endregion

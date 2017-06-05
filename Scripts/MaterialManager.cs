@@ -70,13 +70,18 @@ namespace UWB_Texturing
             }
             
             int numMaterials = localToWorldMatrixArray.Length;
+
+            Debug.Log("Num of materials = " + numMaterials);
             for(int i = 0; i < numMaterials; i++)
             {
                 Material roomMat = GenerateRoomMaterial(i, texArray, worldToCameraMatrixArray, projectionMatrixArray, localToWorldMatrixArray[i]);
 
+                Debug.Log("Material created!");
+
 #if UNITY_EDITOR
                 AssetDatabase.CreateAsset(roomMat, Config.Material.CompileUnityAssetPath(Config.Material.CompileFilename(i)));
                 AssetDatabase.SaveAssets();
+                Debug.Log("Material generated in project folder!");
 #endif
             }
 
