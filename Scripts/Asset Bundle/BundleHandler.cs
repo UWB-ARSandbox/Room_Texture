@@ -31,11 +31,11 @@ namespace UWB_Texturing
         /// NOTE: There is some issue with using constants when specifying 
         /// asset names in a bundle, so names are HARDCODED in the method.
         /// </summary>
-        public static void UnpackRoomTextureBundle()
+        public static void UnpackRoomTextureBundle(string bundlePath)
         {
             RemoveRoomResources();
 
-            AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename()));
+            AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundlePath);
 
             // Extract specific text file assets
             // NOTE: Asset name has to be hardcoded.
@@ -117,6 +117,11 @@ namespace UWB_Texturing
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
 #endif
+        }
+
+        public static void UnpackRoomTextureBundle()
+        {
+            UnpackRoomTextureBundle(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename()));
         }
 
         public static void CreateRoomResources()
@@ -240,18 +245,18 @@ namespace UWB_Texturing
             RoomModel.BuildRoomObject(File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename())));
         }
 
-        public static void UnpackFinalRoomTextureBundle()
+        public static void UnpackFinalRoomTextureBundle(string bundlePath, string roomMatrixPath)
         {
-            string bundleFilepath = Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename());
-            if (File.Exists(bundleFilepath)) {
+            if (File.Exists(bundlePath)) {
 
                 // Ensure that previous room items (resources & game objects) are deleted
                 RemoveRoomObject();
                 RemoveRoomResources();
                 
-                AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundleFilepath);
+                AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundlePath);
                 TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset("RoomMatrices".ToLower()) as TextAsset;
-                File.WriteAllText(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()), roomMatricesTextAsset.text);
+                Directory.CreateDirectory(roomMatrixPath);
+                File.WriteAllText(roomMatrixPath, roomMatricesTextAsset.text);
                 
                 GameObject room = roomTextureBundle.LoadAsset(Config.Prefab.CompileFilename()) as GameObject;
                 room = GameObject.Instantiate(room);
@@ -281,6 +286,13 @@ namespace UWB_Texturing
             }
         }
         
+        public static void UnpackFinalRoomTextureBundle()
+        {
+            string bundlePath = Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename());
+            string roomMatrixPath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
+            UnpackFinalRoomTextureBundle(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename()), roomMatrixPath);
+        }
+
 #region Helper Functions
 
         public static void CleanAssetBundleGeneration()
