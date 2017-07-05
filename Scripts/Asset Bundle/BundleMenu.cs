@@ -31,50 +31,10 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Intermediary Processing/Export Asset Bundle", false, 0)]
         public static void BundleRoomTexture_WindowsStandalone()
         {
-            AssetBundleBuild[] buildMap = new AssetBundleBuild[1];
+            string destinationDirectory = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory();
+            BuildTarget targetPlatform = BuildTarget.StandaloneWindows;
 
-            // Bundle room texture together
-            buildMap[0] = new AssetBundleBuild();
-            buildMap[0].assetBundleName = Config.AssetBundle.RawPackage.Name;
-
-            // Gather number of assets to place into asset bundle
-            int numTextures = MaterialManager.GetNumTextures();
-            int numMeshFiles = 1;
-            int numSupplementaryMeshInfoFiles = 1;
-            int numMatrixFiles = 1;
-            int numAssets = numTextures + numMeshFiles + numSupplementaryMeshInfoFiles + numMatrixFiles;
-            string[] textureAssets = new string[numAssets];
-
-            // Assign assets to asset bundle
-            int index = 0;
-            // Textures
-            for (; index < numTextures; index++)
-            {
-                textureAssets[index] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.Images.CompileFilename(index)); //Config.AssetBundle.InputFolder
-            }
-            // Mesh
-            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.CustomMesh.CompileFilename()); //Config.AssetBundle.InputFolder
-            // Mesh Supplementary Info
-            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.CustomOrientation.CompileFilename()); //Config.AssetBundle.InputFolder
-            // Matrix Arrays
-            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.MatrixArray.CompileFilename()); //Config.AssetBundle.InputFolder
-            buildMap[0].assetNames = textureAssets;
-
-            // Write asset bundle
-            try
-            {
-                BuildPipeline.BuildAssetBundles(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
-            }
-            catch (System.ArgumentException)
-            {
-                Directory.CreateDirectory(Config.AssetBundle.RawPackage.CompileAbsoluteAssetDirectory());
-                Debug.Log("Asset Bundle folder created: " + Config.AssetBundle.RawPackage.CompileAbsoluteAssetDirectory());
-                BuildPipeline.BuildAssetBundles(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
-            }
-
-            BundleHandler.CleanAssetBundleGeneration();
-
-            AssetDatabase.Refresh();
+            BundleHandler.PackRawRoomTextureBundle(destinationDirectory, targetPlatform);
         }
 
         /// <summary>
@@ -94,7 +54,6 @@ namespace UWB_Texturing
             //string[] orientationFileLines = File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()));
             //GameObject room = RoomModel.BuildRoomObject(orientationFileLines);
         }
-
         
         [UnityEditor.MenuItem("Room Texture/Remove Assets/All")]
         public static void ClearAllRoomAssets()
@@ -141,73 +100,10 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Build Finished Room Bundle")]
         public static void BundleRoom_WindowsStandalone()
         {
-            GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);
-            if (room != null)
-            {
+            string destinationDirectory = Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory();
+            BuildTarget targetPlatform = BuildTarget.StandaloneWindows;
 
-                AssetBundleBuild[] buildMap = new AssetBundleBuild[1];
-
-                // Bundle room texture items together
-                buildMap[0] = new AssetBundleBuild();
-                buildMap[0].assetBundleName = Config.AssetBundle.RoomPackage.Name;
-
-                // Gather number of assets to place into asset bundle
-                int numMaterials = MaterialManager.GetNumMaterials();
-                int numMeshFiles = CustomMesh.GetNumMeshes();
-                int numTexArrays = 1;
-                int numRoomPrefabs = 1;
-                int numShaders = 1;
-                int numMatrixFiles = 1;
-                int numAssets = numMaterials + numMeshFiles + numTexArrays + numRoomPrefabs + numShaders + numMatrixFiles;
-                string[] roomAssets = new string[numAssets];
-
-                // Assign assets to asset bundle
-                int index = 0;
-                // Materials
-                for (int i = 0; i < numMaterials; i++)
-                {
-                    string materialName = Config.Material.CompileMaterialName(i);
-                    roomAssets[index++] = Config.Material.CompileUnityAssetPath(materialName);
-                }
-                // Meshes
-                for(int i = 0; i < numMeshFiles; i++)
-                {
-                    string meshName = Config.UnityMeshes.CompileMeshName(i);
-                    // ERROR TESTING - reference Mesh, not CustomMesh
-                    roomAssets[index++] = Config.CustomMesh.CompileUnityAssetPath(meshName);
-                }
-                // Texture2DArray
-                roomAssets[index++] = Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename());
-                // Room Prefab
-                roomAssets[index++] = Config.Prefab.CompileUnityAssetPath(Config.Prefab.CompileFilename());
-                // Shaders
-                roomAssets[index++] = Config.Shader.CompileUnityAssetPath(Config.Shader.CompileFilename());
-                // Matrix Files
-                //roomAssets[index++] = CrossPlatformNames.Matrices.CompileAssetPath(); // ERROR TESTING - Currently sitting outside Resources folder. Fix this.
-                Debug.Log("Matrix filepath = " + Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename());
-                roomAssets[index++] = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename();
-                buildMap[0].assetNames = roomAssets;
-
-                // Write asset bundle
-                try
-                {
-                    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
-                }
-                catch (System.ArgumentException)
-                {
-                    Directory.CreateDirectory(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetDirectory());
-                    Debug.Log("Asset Bundle folder created: " + Config.AssetBundle.RoomPackage.CompileAbsoluteAssetDirectory());
-                    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
-                }
-
-                BundleHandler.CleanAssetBundleGeneration();
-
-                AssetDatabase.Refresh();
-            }
-            else
-            {
-                Debug.Log("Asset bundle of processed room failed. Does the room object exist in the scene?");
-            }
+            BundleHandler.PackFinalRoomBundle(destinationDirectory, targetPlatform);
         }
 
         [UnityEditor.MenuItem("Room Texture/Unpack Finished Room Bundle")]
