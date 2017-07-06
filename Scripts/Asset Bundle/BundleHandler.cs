@@ -24,7 +24,7 @@ namespace UWB_Texturing
         #region Methods
 
         #region Packing Room Texture Bundles
-
+#if UNITY_EDITOR
         public static void PackRawRoomTextureBundle(string destinationDirectory, BuildTarget targetPlatform)
         {
             AssetBundleBuild[] buildMap = new AssetBundleBuild[1];
@@ -159,7 +159,8 @@ namespace UWB_Texturing
             }
         }
 
-        #endregion
+#endif
+#endregion
 
         /// <summary>
         /// Runs through the logic of unpacking the room texture bundle, then 
