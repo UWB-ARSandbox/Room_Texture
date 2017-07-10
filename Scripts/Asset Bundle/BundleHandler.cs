@@ -94,7 +94,8 @@ namespace UWB_Texturing
 
                 // Gather number of assets to place into asset bundle
                 int numMaterials = MaterialManager.GetNumMaterials();
-                int numMeshFiles = CustomMesh.GetNumMeshes();
+                string meshDirectory = Config.CustomMesh.CompileAbsoluteAssetDirectory();
+                int numMeshFiles = CustomMesh.GetNumMeshes(meshDirectory);
                 int numTexArrays = 1;
                 int numRoomPrefabs = 1;
                 int numShaders = 1;
