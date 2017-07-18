@@ -27,6 +27,21 @@ namespace UWB_Texturing
 #if UNITY_EDITOR
         public static void PackRawRoomTextureBundle(string destinationDirectory, BuildTarget targetPlatform)
         {
+            // Ensure that resources exist in project
+            if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()))
+                || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()))
+                || !File.Exists(Config.Images.CompileFilename(0)))
+            {
+                //Debug.Log("Raw room resources do not exist. Ensure that items have been saved from room texturing device (e.g. Hololens)");
+                // Grab the raw resources
+                if (!File.Exists(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename())))
+                {
+                    Debug.Log("Room resources for instantiating room cannot be found!");
+                    return;
+                }
+                //UnpackRoomTextureBundle();
+            }
+
             AssetBundleBuild[] buildMap = new AssetBundleBuild[1];
 
             // Bundle room texture together
@@ -75,7 +90,9 @@ namespace UWB_Texturing
             //    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
             //}
 
-            BundleHandler.CleanAssetBundleGeneration();
+            Debug.Log("Raw Room Resources Bundle generated at " + Path.Combine(destinationDirectory, buildMap[0].assetBundleName));
+
+            BundleHandler.CleanAssetBundleGeneration(destinationDirectory);
 
             AssetDatabase.Refresh();
         }
@@ -83,8 +100,28 @@ namespace UWB_Texturing
         public static void PackFinalRoomBundle(string destinationDirectory, BuildTarget targetPlatform)
         {
             GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);
-            if (room != null)
+            if(room == null)
             {
+                string roomPrefabPath = Config.Prefab.CompileAbsoluteAssetPath(Config.Prefab.CompileFilename());
+                if (!File.Exists(roomPrefabPath))
+                {
+                    InstantiateRoom();
+                    room = GameObject.Find(Config.RoomObject.GameObjectName);
+                    if (room != null)
+                    {
+                        PrefabHandler.CreatePrefab(GameObject.Find(Config.RoomObject.GameObjectName));
+                        RemoveRoomObject();
+                    }
+                    else
+                    {
+                        Debug.Log("Couldn't pack room prefab.");
+                        return;
+                    }
+                }
+            }
+
+            //if (room != null)
+            //{
 
                 AssetBundleBuild[] buildMap = new AssetBundleBuild[1];
 
@@ -126,7 +163,7 @@ namespace UWB_Texturing
                 roomAssets[index++] = Config.Shader.CompileUnityAssetPath(Config.Shader.CompileFilename());
                 // Matrix Files
                 //roomAssets[index++] = CrossPlatformNames.Matrices.CompileAssetPath(); // ERROR TESTING - Currently sitting outside Resources folder. Fix this.
-                Debug.Log("Matrix filepath = " + Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename());
+                //Debug.Log("Matrix filepath = " + Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename());
                 roomAssets[index++] = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename();
                 buildMap[0].assetNames = roomAssets;
 
@@ -139,25 +176,28 @@ namespace UWB_Texturing
                 }
                 BuildPipeline.BuildAssetBundles(destinationDirectory, buildMap, BuildAssetBundleOptions.StrictMode, targetPlatform);
 
-                //try
-                //{
-                //    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
-                //}
-                //catch (System.ArgumentException)
-                //{
-                //    Directory.CreateDirectory(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetDirectory());
-                //    Debug.Log("Asset Bundle folder created: " + Config.AssetBundle.RoomPackage.CompileAbsoluteAssetDirectory());
-                //    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
-                //}
+            //try
+            //{
+            //    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
+            //}
+            //catch (System.ArgumentException)
+            //{
+            //    Directory.CreateDirectory(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetDirectory());
+            //    Debug.Log("Asset Bundle folder created: " + Config.AssetBundle.RoomPackage.CompileAbsoluteAssetDirectory());
+            //    BuildPipeline.BuildAssetBundles(Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(), buildMap, BuildAssetBundleOptions.StrictMode, BuildTarget.StandaloneWindows);
+            //}
 
-                BundleHandler.CleanAssetBundleGeneration();
+
+            Debug.Log("Room Prefab Bundle generated at " + Path.Combine(destinationDirectory, buildMap[0].assetBundleName));
+
+            BundleHandler.CleanAssetBundleGeneration(destinationDirectory);
 
                 AssetDatabase.Refresh();
-            }
-            else
-            {
-                Debug.Log("Asset bundle of processed room failed. Does the room object exist in the scene?");
-            }
+            //}
+            //else
+            //{
+            //    Debug.Log("Asset bundle of processed room failed. Does the room object exist in the scene?");
+            //}
         }
 
 #endif
@@ -436,21 +476,48 @@ namespace UWB_Texturing
 
 #region Helper Functions
 
-        public static void CleanAssetBundleGeneration()
+        // ERROR TESTING - Removing the manifest is unwanted IF there will be more than one asset bundle
+        // associated with something (like the room). Remove the Path.GetExtension(bundleFilepath).Equals(".manifest")
+        // line if you want to organize the asset bundles or expand them better by having multiple asset
+        // bundles per thing
+        public static void CleanAssetBundleGeneration(string bundleDestinationDirectory)
         {
             // Clean up erroneous asset bundle generation
-            string[] bundleFilepaths = Directory.GetFiles(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory());
+            //string[] bundleFilepaths = Directory.GetFiles(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory());
+            string[] bundleFilepaths = Directory.GetFiles(bundleDestinationDirectory);
+
+            //Debug.Log("bundle destination directory = " + bundleDestinationDirectory);
+            string extraBundleName = GetExtraBundleName(bundleDestinationDirectory);
             for (int i = 0; i < bundleFilepaths.Length; i++)
             {
                 string bundleFilepath = bundleFilepaths[i];
                 string bundleFilename = Path.GetFileNameWithoutExtension(bundleFilepath);
-                if (bundleFilename.Equals(Config.AssetBundle.RawPackage.GetExtraBundleName()))
+                if (bundleFilename.Equals(extraBundleName))
                 {
-                    File.Delete(bundleFilepath);
+                    if (!Path.HasExtension(bundleFilepath) 
+                        || Path.GetExtension(bundleFilepath).Equals(".meta")
+                        || Path.GetExtension(bundleFilepath).Equals(".manifest"))
+                    {
+                        //Debug.Log("Deleting " + bundleFilepath);
+                        //Debug.Log("filename to compare = " + bundleFilename);
+
+                        File.Delete(bundleFilepath);
+                    }
                 }
             }
         }
         
+        public static string GetExtraBundleName(string bundleDirectory)
+        {
+            //string[] pass1 = CompileUnityAssetDirectory().Split('/');
+            //string[] pass2 = pass1[pass1.Length - 1].Split('\\');
+            //return pass2[pass2.Length - 1];
+
+            string[] pass1 = bundleDirectory.Split('/');
+            string[] pass2 = pass1[pass1.Length - 1].Split('\\');
+            return pass2[pass2.Length - 1];
+        }
+
         public static void RemoveRoomObject()
         {
             GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);

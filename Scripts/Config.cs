@@ -172,13 +172,6 @@ namespace UWB_Texturing
                 {
                     return Name;
                 }
-
-                public static string GetExtraBundleName()
-                {
-                    string[] pass1 = CompileUnityAssetDirectory().Split('/');
-                    string[] pass2 = pass1[pass1.Length - 1].Split('\\');
-                    return pass2[pass2.Length - 1];
-                }
             }
 
             public class RoomPackage : Config_Base

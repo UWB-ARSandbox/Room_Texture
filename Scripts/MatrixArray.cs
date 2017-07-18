@@ -243,12 +243,12 @@ namespace UWB_Texturing
             bool useProjList = false;
             bool useLocalToWorldList = false;
 
-            Debug.Log("Matrix array file found. # of fileLines = " + fileLines.Length);
+            //Debug.Log("Matrix array file found. # of fileLines = " + fileLines.Length);
 
             int lineCount = 0;
             while (lineCount < fileLines.Length)
             {
-                Debug.Log("Line = " + fileLines[lineCount]);
+                //Debug.Log("Line = " + fileLines[lineCount]);
 
                 fileLines[lineCount] = fileLines[lineCount].TrimEnd();
 
@@ -257,7 +257,7 @@ namespace UWB_Texturing
                 if (fileLines[lineCount].Contains(MatrixSeparator))
                 {
 
-                    Debug.Log("Matrix separator found on line " + lineCount);
+                    //Debug.Log("Matrix separator found on line " + lineCount);
 
                     ++lineCount;
 
@@ -269,7 +269,7 @@ namespace UWB_Texturing
                         useProjList = false;
                         useLocalToWorldList = false;
 
-                        Debug.Log("WorldToCam matrix found");
+                        //Debug.Log("WorldToCam matrix found");
                     }
                     else if (fileLines[lineCount].Contains(ProjectionMatrixID))
                     {
@@ -279,7 +279,7 @@ namespace UWB_Texturing
                         useWorldToCamList = false;
                         useLocalToWorldList = false;
 
-                        Debug.Log("Projection matrix found");
+                        //Debug.Log("Projection matrix found");
                     }
                     else if (fileLines[lineCount].Contains(LocalToWorldMatrixID))
                     {
@@ -289,11 +289,11 @@ namespace UWB_Texturing
                         useWorldToCamList = false;
                         useProjList = false;
 
-                        Debug.Log("LocalToWorld matrix found");
+                        //Debug.Log("LocalToWorld matrix found");
                     }
                     else
                     {
-                        Debug.Log("Assuming matrix line. Line = " + fileLines[lineCount]);
+                        //Debug.Log("Assuming matrix line. Line = " + fileLines[lineCount]);
 
                         // Extract the actual 4x4 matrix
                         Matrix4x4 mat = new Matrix4x4();
@@ -315,7 +315,7 @@ namespace UWB_Texturing
                             ++lineCount;
                         }
 
-                        Debug.Log("Matrix read. fileLine = " + lineCount);
+                        //Debug.Log("Matrix read. fileLine = " + lineCount);
 
                         // Tack the matrix onto the appropriate list
                         if (useWorldToCamList)
@@ -343,8 +343,8 @@ namespace UWB_Texturing
             ProjectionMatrixArray = projList.ToArray();
             LocalToWorldMatrixArray = localToWorldList.ToArray();
 
-            Debug.Log("Immediately after processing, WorldToCam length = " + WorldToCameraMatrixArray.Length);
-            Debug.Log("Immediately after processing, WorldToCam list length = " + WorldToCameraMatrixArray.Length);
+            //Debug.Log("Immediately after processing, WorldToCam length = " + WorldToCameraMatrixArray.Length);
+            //Debug.Log("Immediately after processing, WorldToCam list length = " + WorldToCameraMatrixArray.Length);
         }
 
         #endregion

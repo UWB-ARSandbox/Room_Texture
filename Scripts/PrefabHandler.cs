@@ -16,21 +16,7 @@ namespace UWB_Texturing
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Room Texture/Prefab/Generate Finished Room Prefab", false, 0)]
-        public static void CreatePrefab_Room()
-        {
-            GameObject roomModel = GameObject.Find(Config.RoomObject.GameObjectName);
-            if(roomModel != null)
-            {
-                CreatePrefab(roomModel);
-            }
-            else
-            {
-                Debug.Log(Messages.GameObjectDoesNotExist);
-            }
-        }
-
-        private static void CreatePrefab(GameObject obj)
+        public static void CreatePrefab(GameObject obj)
         {
             if (obj != null)
             {

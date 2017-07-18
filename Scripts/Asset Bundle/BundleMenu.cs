@@ -111,6 +111,20 @@ namespace UWB_Texturing
         {
             BundleHandler.UnpackFinalRoomTextureBundle();
         }
+        
+        [UnityEditor.MenuItem("Room Texture/Prefab/Generate Finished Room Prefab", false, 0)]
+        public static void CreatePrefab_Room()
+        {
+            GameObject roomModel = GameObject.Find(Config.RoomObject.GameObjectName);
+            if (roomModel != null)
+            {
+                PrefabHandler.CreatePrefab(roomModel);
+            }
+            else
+            {
+                Debug.Log(PrefabHandler.Messages.GameObjectDoesNotExist);
+            }
+        }
 
         /// <summary>
         /// Mashes together the menu and submenu names, separated by '/' for 
