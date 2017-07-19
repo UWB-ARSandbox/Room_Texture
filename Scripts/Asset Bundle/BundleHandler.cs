@@ -74,7 +74,8 @@ namespace UWB_Texturing
             // Write asset bundle
             if (!Directory.Exists(destinationDirectory))
             {
-                Directory.CreateDirectory(destinationDirectory);
+                //Directory.CreateDirectory(destinationDirectory);
+                AbnormalDirectoryHandler.CreateDirectory(destinationDirectory);
                 Debug.Log("Asset Bundle folder created: " + destinationDirectory);
             }
             BuildPipeline.BuildAssetBundles(destinationDirectory, buildMap, BuildAssetBundleOptions.StrictMode, targetPlatform);
@@ -171,7 +172,8 @@ namespace UWB_Texturing
                 
                 if (!Directory.Exists(destinationDirectory))
                 {
-                    Directory.CreateDirectory(destinationDirectory);
+                //Directory.CreateDirectory(destinationDirectory);
+                AbnormalDirectoryHandler.CreateDirectory(destinationDirectory);
                     Debug.Log("Asset Bundle folder created: " + destinationDirectory);
                 }
                 BuildPipeline.BuildAssetBundles(destinationDirectory, buildMap, BuildAssetBundleOptions.StrictMode, targetPlatform);
@@ -366,7 +368,8 @@ namespace UWB_Texturing
 #if UNITY_EDITOR
                 if (!Directory.Exists(Config.Texture2DArray.CompileAbsoluteAssetDirectory()))
                 {
-                    Directory.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory());
+                    //Directory.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory());
+                    AbnormalDirectoryHandler.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory());
                 }
 
                 // Save Texture2DArray as asset if appropriate
@@ -436,7 +439,8 @@ namespace UWB_Texturing
                 
                 AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundlePath);
                 TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset("RoomMatrices".ToLower()) as TextAsset;
-                Directory.CreateDirectory(roomMatrixPath);
+                //Directory.CreateDirectory(roomMatrixPath);
+                AbnormalDirectoryHandler.CreateDirectoryFromFile(roomMatrixPath);
                 File.WriteAllText(roomMatrixPath, roomMatricesTextAsset.text);
                 
                 GameObject room = roomTextureBundle.LoadAsset(Config.Prefab.CompileFilename()) as GameObject;

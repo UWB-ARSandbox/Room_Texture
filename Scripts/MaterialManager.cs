@@ -66,7 +66,8 @@ namespace UWB_Texturing
         {
             if (!Directory.Exists(Config.Material.CompileAbsoluteAssetDirectory()))
             {
-                Directory.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory());
+                //Directory.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory());
+                AbnormalDirectoryHandler.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory());
             }
             
             int numMaterials = localToWorldMatrixArray.Length;

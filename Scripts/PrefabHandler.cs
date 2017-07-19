@@ -26,7 +26,8 @@ namespace UWB_Texturing
 
                 if (!Directory.Exists(Config.Prefab.CompileAbsoluteAssetDirectory()))
                 {
-                    Directory.CreateDirectory(Config.Prefab.CompileAbsoluteAssetDirectory());
+                    //Directory.CreateDirectory(Config.Prefab.CompileAbsoluteAssetDirectory());
+                    AbnormalDirectoryHandler.CreateDirectory(Config.Prefab.CompileAbsoluteAssetDirectory());
                     Debug.Log("Prefab folder created: " + Config.Prefab.CompileAbsoluteAssetDirectory());
                 }
                 //var emptyPrefab = PrefabUtility.CreateEmptyPrefab(CrossPlatformNames.Prefab.CompileCompatibleOutputFolder() + '/' + CrossPlatformNames.Prefab.Filename);

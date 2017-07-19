@@ -77,7 +77,8 @@ namespace UWB_Texturing
         {
             if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory()))
             {
-                Directory.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
+                //Directory.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
+                AbnormalDirectoryHandler.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
             }
 
             Vector3[] positionArray;
