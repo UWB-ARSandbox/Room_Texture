@@ -41,5 +41,9 @@ namespace UWB_Texturing
             return AssetSubFolder.Substring(AssetSubFolder.IndexOf("Resources") + "Resources".Length + 1) + '/' + assetNameWithoutExtension;
             //return ResourcesSubFolder + '/' + assetNameWithoutExtension;
         }
+        public static string CompileResourcesLoadPath(string assetSubDirectory, string assetNameWithoutExtension)
+        {
+            return assetSubDirectory.Substring(assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1) + '/' + assetNameWithoutExtension;
+        }
     }
 }

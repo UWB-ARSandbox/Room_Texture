@@ -58,8 +58,12 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Remove Assets/All")]
         public static void ClearAllRoomAssets()
         {
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string meshesDirectory = materialsDirectory;
+            string texturesDirectory = materialsDirectory;
+
             BundleHandler.RemoveRoomObject();
-            BundleHandler.RemoveRoomResources();
+            BundleHandler.RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
             PrefabHandler.DeletePrefabs();
             BundleHandler.RemoveRawInfo();
         }
@@ -67,8 +71,12 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Remove Assets/All Finished Room Resources")]
         public static void ClearAllFinishedRoomAssets()
         {
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string meshesDirectory = materialsDirectory;
+            string texturesDirectory = materialsDirectory;
+
             BundleHandler.RemoveRoomObject();
-            BundleHandler.RemoveRoomResources();
+            BundleHandler.RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
             PrefabHandler.DeletePrefabs();
         }
 
@@ -81,7 +89,11 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Remove Assets/Stored Assets")]
         public static void ClearRoomResources()
         {
-            BundleHandler.RemoveRoomResources();
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string meshesDirectory = materialsDirectory;
+            string texturesDirectory = materialsDirectory;
+
+            BundleHandler.RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
         }
 
         [UnityEditor.MenuItem("Room Texture/Remove Assets/Prefabs")]

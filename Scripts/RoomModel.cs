@@ -84,7 +84,7 @@ namespace UWB_Texturing
             }
         }
         
-        public static GameObject BuildRoomObject(string[] orientationFileLines)
+        public static GameObject BuildRoomObject(string[] orientationFileLines, string unityMeshesRelativeDirectory, string materialsRelativeDirectory)
         {
             if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory()))
             {
@@ -106,13 +106,15 @@ namespace UWB_Texturing
                 GameObject child = new GameObject();
 
                 // Set mesh
-                Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+                //Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+                Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i))) as Mesh;
                 MeshFilter mf = child.AddComponent<MeshFilter>();
                 mf.sharedMesh = childMesh;
 
                 // Set material
                 MeshRenderer mr = child.AddComponent<MeshRenderer>();
-                mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
+                //mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
+                mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
 
                 // Set position and rotation
                 child.transform.position = positionArray[i];
