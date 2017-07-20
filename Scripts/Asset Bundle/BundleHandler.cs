@@ -449,11 +449,26 @@ namespace UWB_Texturing
                 // Destroy existing room script (Unity bug causes bad script reference? Or script HAS to be in resources?)
                 GameObject.Destroy(room.GetComponent<RoomModel>());
                 RoomModel roomModel = room.AddComponent<RoomModel>();
-                
+
+                //// Get the materials
+                //// Update by resetting the texture arrays to them to get them to display
+                //Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameWithoutExtension + Config.Texture2DArray.Extension) as Texture2DArray;
+                //for(int i = 0; i < room.transform.childCount; i++)
+                //{
+                //    GameObject child = room.transform.GetChild(i).gameObject;
+                //    child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
+                //}
+
                 Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameWithoutExtension + Config.Texture2DArray.Extension) as Texture2DArray;
+                Matrix4x4[] worldToCameraArray;
+                Matrix4x4[] projectionArray;
+                Matrix4x4[] localToWorldArray;
+                MatrixArray.LoadMatrixArrays_FromAssetBundle(roomMatricesTextAsset, out worldToCameraArray, out projectionArray, out localToWorldArray);
                 for(int i = 0; i < room.transform.childCount; i++)
                 {
                     GameObject child = room.transform.GetChild(i).gameObject;
+                    Material childMaterial = MaterialManager.GenerateRoomMaterial(i, texArray, worldToCameraArray, projectionArray, localToWorldArray[i]);
+                    child.GetComponent<MeshRenderer>().sharedMaterial = childMaterial;
                     child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
                 }
 
