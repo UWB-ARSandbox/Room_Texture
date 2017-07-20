@@ -450,6 +450,13 @@ namespace UWB_Texturing
                 GameObject.Destroy(room.GetComponent<RoomModel>());
                 RoomModel roomModel = room.AddComponent<RoomModel>();
 
+                // Grab the matrices and set them
+                Matrix4x4[] worldToCameraArray;
+                Matrix4x4[] projectionArray;
+                Matrix4x4[] localToWorldArray;
+                MatrixArray.LoadMatrixArrays_FromAssetBundle(roomMatricesTextAsset, out worldToCameraArray, out projectionArray, out localToWorldArray);
+                roomModel.SetMatrixData(worldToCameraArray, projectionArray, localToWorldArray);
+
                 //// Get the materials
                 //// Update by resetting the texture arrays to them to get them to display
                 //Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameWithoutExtension + Config.Texture2DArray.Extension) as Texture2DArray;
@@ -460,10 +467,6 @@ namespace UWB_Texturing
                 //}
 
                 Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameWithoutExtension + Config.Texture2DArray.Extension) as Texture2DArray;
-                Matrix4x4[] worldToCameraArray;
-                Matrix4x4[] projectionArray;
-                Matrix4x4[] localToWorldArray;
-                MatrixArray.LoadMatrixArrays_FromAssetBundle(roomMatricesTextAsset, out worldToCameraArray, out projectionArray, out localToWorldArray);
                 for(int i = 0; i < room.transform.childCount; i++)
                 {
                     GameObject child = room.transform.GetChild(i).gameObject;
@@ -471,7 +474,6 @@ namespace UWB_Texturing
                     child.GetComponent<MeshRenderer>().sharedMaterial = childMaterial;
                     child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
                 }
-
 
                 // Unload the room texture bundle to reduce memory usage
                 // false indicates you are creating a COPY of the items inside 

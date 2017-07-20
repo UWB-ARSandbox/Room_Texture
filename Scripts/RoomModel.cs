@@ -25,10 +25,21 @@ namespace UWB_Texturing
         void Start()
         {
             // Deep copy matrix data
-            GetMatrixData(out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
+            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
+            if (File.Exists(matrixArrayFilepath))
+            {
+                GetMatrixData(out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
+            }
 
             // Start the refresh cycle for the matrix data
             BeginShaderRefreshCycle(Config.RoomObject.RecommendedShaderRefreshTime);
+        }
+
+        public void SetMatrixData(Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
+        {
+            RoomModel.worldToCameraMatrixArray = worldToCameraMatrixArray;
+            RoomModel.projectionMatrixArray = projectionMatrixArray;
+            RoomModel.localToWorldMatrixArray = localToWorldMatrixArray;
         }
 
         public void GetMatrixData(out Matrix4x4[] worldToCameraMatrixArray, out Matrix4x4[] projectionMatrixArray, out Matrix4x4[] localToWorldMatrixArray)
