@@ -27,14 +27,20 @@ namespace UWB_Texturing
 #if UNITY_EDITOR
         public static void PackRawRoomTextureBundle(string destinationDirectory, BuildTarget targetPlatform)
         {
+            string roomName = Config.RoomObject.GameObjectName;
+            PackRawRoomTextureBundle(destinationDirectory, targetPlatform, roomName);
+        }
+
+        public static void PackRawRoomTextureBundle(string destinationDirectory, BuildTarget targetPlatform, string roomName)
+        {
             // Ensure that resources exist in project
-            if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()))
-                || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()))
+            if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName))
+                || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename(), roomName))
                 || !File.Exists(Config.Images.CompileFilename(0)))
             {
                 //Debug.Log("Raw room resources do not exist. Ensure that items have been saved from room texturing device (e.g. Hololens)");
                 // Grab the raw resources
-                if (!File.Exists(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename())))
+                if (!File.Exists(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName)))
                 {
                     Debug.Log("Room resources for instantiating room cannot be found!");
                     return;
@@ -49,7 +55,7 @@ namespace UWB_Texturing
             buildMap[0].assetBundleName = Config.AssetBundle.RawPackage.Name;
 
             // Gather number of assets to place into asset bundle
-            int numTextures = MaterialManager.GetNumTextures();
+            int numTextures = MaterialManager.GetNumTextures(roomName);
             int numMeshFiles = 1;
             int numSupplementaryMeshInfoFiles = 1;
             int numMatrixFiles = 1;
@@ -61,14 +67,14 @@ namespace UWB_Texturing
             // Textures
             for (; index < numTextures; index++)
             {
-                textureAssets[index] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.Images.CompileFilename(index)); //Config.AssetBundle.InputFolder
+                textureAssets[index] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(roomName), Config.Images.CompileFilename(index)); //Config.AssetBundle.InputFolder
             }
             // Mesh
-            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.CustomMesh.CompileFilename()); //Config.AssetBundle.InputFolder
+            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(roomName), Config.CustomMesh.CompileFilename()); //Config.AssetBundle.InputFolder
             // Mesh Supplementary Info
-            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.CustomOrientation.CompileFilename()); //Config.AssetBundle.InputFolder
+            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(roomName), Config.CustomOrientation.CompileFilename()); //Config.AssetBundle.InputFolder
             // Matrix Arrays
-            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(), Config.MatrixArray.CompileFilename()); //Config.AssetBundle.InputFolder
+            textureAssets[index++] = Path.Combine(Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(roomName), Config.MatrixArray.CompileFilename()); //Config.AssetBundle.InputFolder
             buildMap[0].assetNames = textureAssets;
 
             // Write asset bundle
@@ -98,19 +104,35 @@ namespace UWB_Texturing
             AssetDatabase.Refresh();
         }
 
+        public static void PackAllFinalRoomBundles(string destinationDirectory, BuildTarget targetPlatform)
+        {
+            string[] roomNames = RoomManager.GetAllRoomNames();
+            foreach (string roomName in roomNames)
+            {
+                PackFinalRoomBundle(destinationDirectory, targetPlatform, roomName);
+            }
+        }
+
         public static void PackFinalRoomBundle(string destinationDirectory, BuildTarget targetPlatform)
         {
-            GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);
+            string roomName = Config.RoomObject.GameObjectName;
+            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
+            PackFinalRoomBundle(destinationDirectory, targetPlatform, roomName);
+        }
+
+        public static void PackFinalRoomBundle(string destinationDirectory, BuildTarget targetPlatform, string roomName)
+        {
+            GameObject room = GameObject.Find(roomName);
             if(room == null)
             {
-                string roomPrefabPath = Config.Prefab.CompileAbsoluteAssetPath(Config.Prefab.CompileFilename());
+                string roomPrefabPath = Config.Prefab.CompileAbsoluteAssetPath(Config.Prefab.CompileFilename(), roomName);
                 if (!File.Exists(roomPrefabPath))
                 {
-                    InstantiateRoom();
-                    room = GameObject.Find(Config.RoomObject.GameObjectName);
+                    InstantiateRoom(roomName);
+                    room = GameObject.Find(roomName);
                     if (room != null)
                     {
-                        PrefabHandler.CreatePrefab(GameObject.Find(Config.RoomObject.GameObjectName));
+                        PrefabHandler.CreatePrefab(GameObject.Find(roomName), roomName);
                         RemoveRoomObject();
                     }
                     else
@@ -131,8 +153,8 @@ namespace UWB_Texturing
                 buildMap[0].assetBundleName = Config.AssetBundle.RoomPackage.Name;
 
                 // Gather number of assets to place into asset bundle
-                int numMaterials = MaterialManager.GetNumMaterials();
-                string meshDirectory = Config.CustomMesh.CompileAbsoluteAssetDirectory();
+                int numMaterials = MaterialManager.GetNumMaterials(roomName);
+                string meshDirectory = Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName);
                 int numMeshFiles = CustomMesh.GetNumMeshes(meshDirectory);
                 int numTexArrays = 1;
                 int numRoomPrefabs = 1;
@@ -147,25 +169,25 @@ namespace UWB_Texturing
                 for (int i = 0; i < numMaterials; i++)
                 {
                     string materialName = Config.Material.CompileMaterialName(i);
-                    roomAssets[index++] = Config.Material.CompileUnityAssetPath(materialName);
+                    roomAssets[index++] = Config.Material.CompileUnityAssetPath(materialName, roomName);
                 }
                 // Meshes
                 for (int i = 0; i < numMeshFiles; i++)
                 {
                     string meshName = Config.UnityMeshes.CompileMeshName(i);
                     // ERROR TESTING - reference Mesh, not CustomMesh
-                    roomAssets[index++] = Config.CustomMesh.CompileUnityAssetPath(meshName);
+                    roomAssets[index++] = Config.CustomMesh.CompileUnityAssetPath(meshName, roomName);
                 }
                 // Texture2DArray
-                roomAssets[index++] = Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename());
+                roomAssets[index++] = Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename(), roomName);
                 // Room Prefab
-                roomAssets[index++] = Config.Prefab.CompileUnityAssetPath(Config.Prefab.CompileFilename());
+                roomAssets[index++] = Config.Prefab.CompileUnityAssetPath(Config.Prefab.CompileFilename(), roomName);
                 // Shaders
-                roomAssets[index++] = Config.Shader.CompileUnityAssetPath(Config.Shader.CompileFilename());
+                roomAssets[index++] = Config.Shader.CompileUnityAssetPath(Config.Shader.CompileFilename(), roomName);
                 // Matrix Files
                 //roomAssets[index++] = CrossPlatformNames.Matrices.CompileAssetPath(); // ERROR TESTING - Currently sitting outside Resources folder. Fix this.
                 //Debug.Log("Matrix filepath = " + Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename());
-                roomAssets[index++] = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory() + '/' + Config.MatrixArray.CompileFilename();
+                roomAssets[index++] = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(roomName) + '/' + Config.MatrixArray.CompileFilename();
                 buildMap[0].assetNames = roomAssets;
 
                 // Write asset bundle
@@ -214,9 +236,9 @@ namespace UWB_Texturing
         /// NOTE: There is some issue with using constants when specifying 
         /// asset names in a bundle, so names are HARDCODED in the method.
         /// </summary>
-        public static void UnpackRoomTextureBundle(string bundlePath, string customMatricesDestinationDirectory, string customOrientationDestinationDirectory, string customMeshesDestinationDirectory, string textureImagesDestinationDirectory)
+        public static void UnpackRawResourceTextureBundle(string roomName, string rawResourceBundlePath, string customMatricesDestinationDirectory, string customOrientationDestinationDirectory, string customMeshesDestinationDirectory, string textureImagesDestinationDirectory)
         {
-            AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundlePath);
+            AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(rawResourceBundlePath);
 
             // Extract specific text file assets
             // NOTE: Asset name has to be hardcoded.
@@ -224,9 +246,9 @@ namespace UWB_Texturing
             //TextAsset roomOrientationTextAsset = roomTextureBundle.LoadAsset("RoomOrientation".ToLower()) as TextAsset;
             //TextAsset roomMeshesTextAsset = roomTextureBundle.LoadAsset("RoomMesh".ToLower()) as TextAsset;
 
-            TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset(Config.MatrixArray.FilenameWithoutExtension.ToLower()) as TextAsset;
-            TextAsset roomOrientationTextAsset = roomTextureBundle.LoadAsset(Config.CustomOrientation.FilenameWithoutExtension.ToLower()) as TextAsset;
-            TextAsset roomMeshesTextAsset = roomTextureBundle.LoadAsset(Config.CustomMesh.FilenameWithoutExtension.ToLower()) as TextAsset;
+            TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset(Config.MatrixArray.FilenameRoot.ToLower()) as TextAsset;
+            TextAsset roomOrientationTextAsset = roomTextureBundle.LoadAsset(Config.CustomOrientation.FilenameRoot.ToLower()) as TextAsset;
+            TextAsset roomMeshesTextAsset = roomTextureBundle.LoadAsset(Config.CustomMesh.FilenameRoot.ToLower()) as TextAsset;
 
             string customMatricesFilepath = Path.Combine(customMatricesDestinationDirectory, Config.MatrixArray.CompileFilename());
             File.WriteAllLines(customMatricesFilepath, roomMatricesTextAsset.text.Split('\n'));
@@ -313,37 +335,37 @@ namespace UWB_Texturing
 #endif
         }
 
-        public static void UnpackRoomTextureBundle()
+        public static void UnpackRawResourceTextureBundle(string roomName)
         {
-            string bundlePath = Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename());
-            string customMatricesDestinationDirectory = Config.MatrixArray.CompileAbsoluteAssetDirectory();
-            string customOrientationDestinationDirectory = Config.CustomOrientation.CompileAbsoluteAssetDirectory();
-            string customMeshesDestinationDirectory = Config.CustomMesh.CompileAbsoluteAssetDirectory();
-            string imagesDestinationDirectory = Config.Images.CompileAbsoluteAssetDirectory();
+            string bundlePath = Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName);
+            string customMatricesDestinationDirectory = Config.MatrixArray.CompileAbsoluteAssetDirectory(roomName);
+            string customOrientationDestinationDirectory = Config.CustomOrientation.CompileAbsoluteAssetDirectory(roomName);
+            string customMeshesDestinationDirectory = Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName);
+            string imagesDestinationDirectory = Config.Images.CompileAbsoluteAssetDirectory(roomName);
 
-            UnpackRoomTextureBundle(bundlePath, customMatricesDestinationDirectory, customOrientationDestinationDirectory, customMeshesDestinationDirectory, imagesDestinationDirectory);
+            UnpackRawResourceTextureBundle(roomName, bundlePath, customMatricesDestinationDirectory, customOrientationDestinationDirectory, customMeshesDestinationDirectory, imagesDestinationDirectory);
         }
 
-        public static void CreateRoomResources()
+        public static void CreateRoomResources(string roomName, string matrixArrayFilepath)
         {
-            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory(roomName);
             string meshesDirectory = materialsDirectory;
             string texturesDirectory = materialsDirectory;
 
             // Ensure that previous room items (resources) are deleted
             RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
-            
-            // Extract camera matrices
+
+            // Extract camera matricesstring matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
             Matrix4x4[] WorldToCameraMatrixArray;
             Matrix4x4[] ProjectionMatrixArray;
             Matrix4x4[] LocalToWorldMatrixArray;
-            MatrixArray.LoadMatrixArrays_AssetsStored(out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
+            MatrixArray.LoadMatrixArrays_AssetsStored(roomName, matrixArrayFilepath, out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
 
             // Extract textures
             Queue<Texture2D> rawTexQueue = new Queue<Texture2D>();
-            foreach(string filepath in Directory.GetFiles(Config.Images.CompileAbsoluteAssetDirectory()))
+            foreach(string filepath in Directory.GetFiles(Config.Images.CompileAbsoluteAssetDirectory(roomName)))
             {
-                if(filepath.Contains(Config.Images.FilenameWithoutExtension) && filepath.EndsWith(Config.Images.Extension))
+                if(filepath.Contains(Config.Images.FilenameRoot) && filepath.EndsWith(Config.Images.Extension))
                 {
                     Texture2D tex = new Texture2D(1, 1);
                     tex.LoadImage(File.ReadAllBytes(filepath));
@@ -387,19 +409,19 @@ namespace UWB_Texturing
                 }
 
 #if UNITY_EDITOR
-                if (!Directory.Exists(Config.Texture2DArray.CompileAbsoluteAssetDirectory()))
+                if (!Directory.Exists(Config.Texture2DArray.CompileAbsoluteAssetDirectory(roomName)))
                 {
                     //Directory.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory());
-                    AbnormalDirectoryHandler.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory());
+                    AbnormalDirectoryHandler.CreateDirectory(Config.Texture2DArray.CompileAbsoluteAssetDirectory(roomName));
                 }
 
                 // Save Texture2DArray as asset if appropriate
-                AssetDatabase.CreateAsset(TextureArray, Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename()));
+                AssetDatabase.CreateAsset(TextureArray, Config.Texture2DArray.CompileUnityAssetPath(Config.Texture2DArray.CompileFilename(), roomName));
                 AssetDatabase.SaveAssets();
 #endif
 
                 // Extract room mesh
-                CustomMesh.LoadMesh(Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename()));
+                CustomMesh.LoadMesh(Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename(), roomName), roomName);
 
                 Debug.Log("Length of cam array = " + WorldToCameraMatrixArray.Length);
                 Debug.Log("Length of proj array = " + ProjectionMatrixArray.Length);
@@ -407,7 +429,7 @@ namespace UWB_Texturing
                 Debug.Log("Length of texture array = " + TextureArray.depth);
 
                 // Generate materials
-                MaterialManager.GenerateRoomMaterials(TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
+                MaterialManager.GenerateRoomMaterials(roomName, TextureArray, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray);
             }
 
 #if UNITY_EDITOR
@@ -415,26 +437,38 @@ namespace UWB_Texturing
 #endif
         }
 
-        public static void InstantiateRoom()
+        public static void InstantiateRoom(string roomName)
+        {
+            string bundlePath = Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName);
+            string customMatricesDestinationDirectory = Config.MatrixArray.CompileAbsoluteAssetDirectory(roomName);
+            string customOrientationDestinationDirectory = Config.CustomOrientation.CompileAbsoluteAssetDirectory(roomName);
+            string customMeshesDestinationDirectory = Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName);
+            string imagesDestinationDirectory = Config.Images.CompileAbsoluteAssetDirectory(roomName);
+            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
+
+            InstantiateRoomFromResources(roomName, bundlePath, customMatricesDestinationDirectory, customOrientationDestinationDirectory, customMeshesDestinationDirectory, imagesDestinationDirectory, matrixArrayFilepath);
+        }
+
+        public static void InstantiateRoomFromResources(string roomName, string rawResourceBundlePath, string customMatricesDestinationDirectory, string customOrientationDestinationDirectory, string customMeshesDestinationDirectory, string textureImagesDestinationDirectory, string matrixArrayFilepath)
         {
             // Ensure resources are available
-            if(!File.Exists(Config.UnityMeshes.CompileAbsoluteAssetPath(Config.UnityMeshes.CompileFilename(0)))
-                || !File.Exists(Config.Material.CompileAbsoluteAssetPath(Config.Material.CompileFilename(0)))
-                || !File.Exists(Config.Texture2DArray.CompileAbsoluteAssetPath(Config.Texture2DArray.CompileFilename())))
+            if(!File.Exists(Config.UnityMeshes.CompileAbsoluteAssetPath(Config.UnityMeshes.CompileFilename(0), roomName))
+                || !File.Exists(Config.Material.CompileAbsoluteAssetPath(Config.Material.CompileFilename(0), roomName))
+                || !File.Exists(Config.Texture2DArray.CompileAbsoluteAssetPath(Config.Texture2DArray.CompileFilename(), roomName)))
             {
-                if(!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()))
-                    || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename())))
+                if(!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName))
+                    || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename(), roomName)))
                 {
                     // Grab the raw resources
-                    if (!File.Exists(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename())))
+                    if (!File.Exists(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName)))
                     {
                         Debug.Log("Room resources for instantiating room cannot be found!");
                         return;
                     }
-                    UnpackRoomTextureBundle();
+                    UnpackRawResourceTextureBundle(roomName, rawResourceBundlePath, customMatricesDestinationDirectory, customOrientationDestinationDirectory, customMeshesDestinationDirectory, textureImagesDestinationDirectory);
                 }
                 // Compile the necessary resources
-                CreateRoomResources();
+                CreateRoomResources(roomName, matrixArrayFilepath);
             }
             
             // Ensure that previous room items (resources & game objects) are deleted
@@ -444,12 +478,12 @@ namespace UWB_Texturing
             Matrix4x4[] WorldToCameraMatrixArray;
             Matrix4x4[] ProjectionMatrixArray;
             Matrix4x4[] LocalToWorldMatrixArray;
-            MatrixArray.LoadMatrixArrays_AssetsStored(out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
+            MatrixArray.LoadMatrixArrays_AssetsStored(roomName, matrixArrayFilepath, out WorldToCameraMatrixArray, out ProjectionMatrixArray, out LocalToWorldMatrixArray);
 
             // Build room
             //RoomModel.BuildRoomObject(File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename())));
-            string[] customOrientationFileLines = File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()));
-            RoomModel.BuildRoomObject(customOrientationFileLines, Config.UnityMeshes.AssetSubFolder, Config.Material.AssetSubFolder);
+            string[] customOrientationFileLines = File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename(), roomName));
+            RoomModel.BuildRoomObject(roomName, customOrientationFileLines, Config.UnityMeshes.AssetSubFolder, Config.Material.AssetSubFolder);
         }
 
         public static void UnpackFinalRoomTextureBundle(string bundlePath, string destinationDirectory)
@@ -465,7 +499,8 @@ namespace UWB_Texturing
                 RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
                 
                 AssetBundle roomTextureBundle = AssetBundle.LoadFromFile(bundlePath);
-                TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset("RoomMatrices".ToLower()) as TextAsset;
+                //TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset("RoomMatrices".ToLower()) as TextAsset;
+                TextAsset roomMatricesTextAsset = roomTextureBundle.LoadAsset(Config.MatrixArray.FilenameRoot.ToLower()) as TextAsset;
                 //Directory.CreateDirectory(roomMatrixPath);
                 AbnormalDirectoryHandler.CreateDirectoryFromFile(destinationDirectory);
                 File.WriteAllText(destinationDirectory, roomMatricesTextAsset.text);
@@ -493,7 +528,7 @@ namespace UWB_Texturing
                 //    child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
                 //}
 
-                Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameWithoutExtension + Config.Texture2DArray.Extension) as Texture2DArray;
+                Texture2DArray texArray = roomTextureBundle.LoadAsset(Config.Texture2DArray.FilenameRoot + Config.Texture2DArray.Extension) as Texture2DArray;
                 for(int i = 0; i < room.transform.childCount; i++)
                 {
                     GameObject child = room.transform.GetChild(i).gameObject;
@@ -517,9 +552,11 @@ namespace UWB_Texturing
         
         public static void UnpackFinalRoomTextureBundle()
         {
-            string bundlePath = Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename());
-            string roomMatrixPath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
-            UnpackFinalRoomTextureBundle(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename()), roomMatrixPath);
+            string roomName = Config.RoomObject.GameObjectName;
+            string bundlePath = Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename(), roomName);
+            //string roomMatrixPath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
+            //UnpackFinalRoomTextureBundle(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename()), roomMatrixPath);
+            UnpackFinalRoomTextureBundle(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename(), roomName), Config.RoomObject.CompileAbsoluteAssetDirectory(roomName));
         }
 
 #region Helper Functions
@@ -568,8 +605,14 @@ namespace UWB_Texturing
 
         public static void RemoveRoomObject()
         {
-            GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);
-            if(room != null)
+            string roomName = Config.RoomObject.GameObjectName;
+            RemoveRoomObject(roomName);
+        }
+
+        public static void RemoveRoomObject(string roomName)
+        {
+            GameObject room = GameObject.Find(roomName);
+            if (room != null)
             {
                 GameObject.DestroyImmediate(room);
             }
@@ -585,7 +628,7 @@ namespace UWB_Texturing
                 string[] files = Directory.GetFiles(materialsDirectory);
                 for(int i = 0; i < files.Length; i++)
                 {
-                    if (files[i].Contains(Config.Material.FilenameWithoutExtension)
+                    if (files[i].Contains(Config.Material.FilenameRoot)
                         && files[i].Contains(Config.Material.Extension))
                     {
                         File.Delete(files[i]);
@@ -600,7 +643,7 @@ namespace UWB_Texturing
                 string[] files = Directory.GetFiles(meshesDirectory);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    if (files[i].Contains(Config.UnityMeshes.FilenameWithoutExtension)
+                    if (files[i].Contains(Config.UnityMeshes.FilenameRoot)
                         && files[i].Contains(Config.UnityMeshes.Extension))
                     {
                         File.Delete(files[i]);
@@ -615,7 +658,7 @@ namespace UWB_Texturing
                 string[] files = Directory.GetFiles(texturesDirectory);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    if (files[i].Contains(Config.Texture2DArray.FilenameWithoutExtension)
+                    if (files[i].Contains(Config.Texture2DArray.FilenameRoot)
                         && files[i].Contains(Config.Texture2DArray.Extension))
                     {
                         File.Delete(files[i]);
@@ -628,16 +671,16 @@ namespace UWB_Texturing
 #endif
         }
 
-        public static void RemoveRawInfo()
+        public static void RemoveRawInfo(string roomName)
         {
             // Remove images
-            string imageFolder = Config.Images.CompileAbsoluteAssetDirectory();
+            string imageFolder = Config.Images.CompileAbsoluteAssetDirectory(roomName);
             if (Directory.Exists(imageFolder))
             {
                 string[] files = Directory.GetFiles(imageFolder);
                 for(int i = 0; i < files.Length; i++)
                 {
-                    if(files[i].Contains(Config.Images.FilenameWithoutExtension)
+                    if(files[i].Contains(Config.Images.FilenameRoot)
                         && files[i].Contains(Config.Images.Extension))
                     {
                         File.Delete(files[i]);
@@ -646,39 +689,39 @@ namespace UWB_Texturing
             }
 
             // Remove text assets
-            string matrixFileFolder = Config.MatrixArray.CompileAbsoluteAssetDirectory();
+            string matrixFileFolder = Config.MatrixArray.CompileAbsoluteAssetDirectory(roomName);
             if (Directory.Exists(matrixFileFolder))
             {
                 string[] files = Directory.GetFiles(matrixFileFolder);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    if (files[i].Contains(Config.Images.FilenameWithoutExtension)
+                    if (files[i].Contains(Config.Images.FilenameRoot)
                         && files[i].Contains(Config.Images.Extension))
                     {
                         File.Delete(files[i]);
                     }
                 }
             }
-            string meshFileFolder = Config.CustomMesh.CompileAbsoluteAssetDirectory();
+            string meshFileFolder = Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName);
             if (Directory.Exists(meshFileFolder))
             {
                 string[] files = Directory.GetFiles(meshFileFolder);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    if (files[i].Contains(Config.Images.FilenameWithoutExtension)
+                    if (files[i].Contains(Config.Images.FilenameRoot)
                         && files[i].Contains(Config.Images.Extension))
                     {
                         File.Delete(files[i]);
                     }
                 }
             }
-            string orientationFileFolder = Config.CustomOrientation.CompileAbsoluteAssetDirectory();
+            string orientationFileFolder = Config.CustomOrientation.CompileAbsoluteAssetDirectory(roomName);
             if (Directory.Exists(orientationFileFolder))
             {
                 string[] files = Directory.GetFiles(orientationFileFolder);
                 for (int i = 0; i < files.Length; i++)
                 {
-                    if (files[i].Contains(Config.Images.FilenameWithoutExtension)
+                    if (files[i].Contains(Config.Images.FilenameRoot)
                         && files[i].Contains(Config.Images.Extension))
                     {
                         File.Delete(files[i]);

@@ -62,12 +62,12 @@ namespace UWB_Texturing
 //#endif
 //        }
 
-        public static void GenerateRoomMaterials(Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
+        public static void GenerateRoomMaterials(string roomName, Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
         {
-            if (!Directory.Exists(Config.Material.CompileAbsoluteAssetDirectory()))
+            if (!Directory.Exists(Config.Material.CompileAbsoluteAssetDirectory(roomName)))
             {
                 //Directory.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory());
-                AbnormalDirectoryHandler.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory());
+                AbnormalDirectoryHandler.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory(roomName));
             }
             
             int numMaterials = localToWorldMatrixArray.Length;
@@ -80,7 +80,7 @@ namespace UWB_Texturing
                 Debug.Log("Material created!");
 
 #if UNITY_EDITOR
-                AssetDatabase.CreateAsset(roomMat, Config.Material.CompileUnityAssetPath(Config.Material.CompileFilename(i)));
+                AssetDatabase.CreateAsset(roomMat, Config.Material.CompileUnityAssetPath(Config.Material.CompileFilename(i), roomName));
                 AssetDatabase.SaveAssets();
                 Debug.Log("Material generated in project folder!");
 #endif
@@ -155,11 +155,11 @@ namespace UWB_Texturing
         /// logic.
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetTextureFiles()
+        public static List<string> GetTextureFiles(string roomName)
         {
             List<string> textureFilenameList = new List<string>();
 
-            foreach (string filepath in Directory.GetFiles(Config.Images.CompileUnityAssetDirectory()))
+            foreach (string filepath in Directory.GetFiles(Config.Images.CompileUnityAssetDirectory(roomName)))
             {
                 if (Path.GetExtension(filepath).Equals(Config.Images.Extension))
                 {
@@ -177,18 +177,18 @@ namespace UWB_Texturing
         /// used during bundling logic.
         /// </summary>
         /// <returns></returns>
-        public static int GetNumTextures()
+        public static int GetNumTextures(string roomName)
         {
-            return GetTextureFiles().Count;
+            return GetTextureFiles(roomName).Count;
         }
 
-        public static int GetNumMaterials()
+        public static int GetNumMaterials(string roomName)
         {
             int numMaterials = 0;
-            string[] files = Directory.GetFiles(Config.Material.CompileAbsoluteAssetDirectory());
+            string[] files = Directory.GetFiles(Config.Material.CompileAbsoluteAssetDirectory(roomName));
             for(int i = 0; i < files.Length; i++)
             {
-                if (files[i].Contains(Config.Material.FilenameWithoutExtension))
+                if (files[i].Contains(Config.Material.FilenameRoot))
                 {
                     ++numMaterials;
                 }

@@ -24,11 +24,12 @@ namespace UWB_Texturing
 
         void Start()
         {
+            string roomName = Config.RoomObject.GameObjectName;
             // Deep copy matrix data
-            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
+            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
             if (File.Exists(matrixArrayFilepath))
             {
-                GetMatrixData(out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
+                GetMatrixData(roomName, matrixArrayFilepath, out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
             }
 
             // Start the refresh cycle for the matrix data
@@ -42,15 +43,15 @@ namespace UWB_Texturing
             RoomModel.localToWorldMatrixArray = localToWorldMatrixArray;
         }
 
-        public void GetMatrixData(out Matrix4x4[] worldToCameraMatrixArray, out Matrix4x4[] projectionMatrixArray, out Matrix4x4[] localToWorldMatrixArray)
+        public void GetMatrixData(string roomName, string matrixArrayFilepath, out Matrix4x4[] worldToCameraMatrixArray, out Matrix4x4[] projectionMatrixArray, out Matrix4x4[] localToWorldMatrixArray)
         {
             // Try loading from file
-            bool loaded = MatrixArray.LoadMatrixArrays_AssetsStored(out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
+            bool loaded = MatrixArray.LoadMatrixArrays_AssetsStored(roomName, matrixArrayFilepath, out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
             // If file not available, try loading from asset bundle
             if (!loaded)
             {
                 // NOTE: If running into an error with the asset bundle here, you MUST DELETE THE BUNDLE, and rebundle it so the open reference closes
-                AssetBundle bundle = AssetBundle.LoadFromFile(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename()));
+                AssetBundle bundle = AssetBundle.LoadFromFile(Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename(), roomName));
                 TextAsset matrixAsset = bundle.LoadAsset<TextAsset>("RoomMatrices".ToLower());
                 MatrixArray.LoadMatrixArrays_FromAssetBundle(matrixAsset, out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
                 loaded = true;
@@ -84,12 +85,12 @@ namespace UWB_Texturing
             }
         }
         
-        public static GameObject BuildRoomObject(string[] orientationFileLines, string unityMeshesRelativeDirectory, string materialsRelativeDirectory)
+        public static GameObject BuildRoomObject(string roomName, string[] orientationFileLines, string unityMeshesRelativeDirectory, string materialsRelativeDirectory)
         {
-            if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory()))
+            if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName)))
             {
                 //Directory.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
-                AbnormalDirectoryHandler.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
+                AbnormalDirectoryHandler.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName));
             }
 
             Vector3[] positionArray;
@@ -100,7 +101,8 @@ namespace UWB_Texturing
             CustomOrientation.Load(orientationFileLines, out positionArray, out rotationArray);
 
             GameObject roomObject = new GameObject();
-            roomObject.name = Config.RoomObject.GameObjectName;
+            //roomObject.name = Config.RoomObject.GameObjectName;
+            roomObject.name = roomName;
             for(int i = 0; i < positionArray.Length; i++)
             {
                 GameObject child = new GameObject();

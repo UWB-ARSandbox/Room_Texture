@@ -7,10 +7,10 @@ namespace UWB_Texturing
 {
     public class AbnormalDirectoryHandler
     {
-        public static void CreateDirectory(string filepath)
+        public static void CreateDirectory(string directoryPath)
         {
-            filepath = filepath.Replace('\\', '/');
-            string[] directories = filepath.Split('/');
+            directoryPath = directoryPath.Replace('\\', '/');
+            string[] directories = directoryPath.Split('/');
             string directory = "";
             for (int i = 0; i < directories.Length; i++)
             {

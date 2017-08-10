@@ -317,9 +317,10 @@ namespace UWB_Texturing {
             // correct texture placement, then saves them along with the mesh
             SetLocalToWorldMatrices(); // Must be called before SaveMatrixArrays
             SetMeshSupplementaryInfo();
-            MatrixArray.SaveMatrixArrays(WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray, currentPhoto);
-            CustomMesh.SaveMesh(MeshArray);
-            CustomOrientation.Save(PositionArray, RotationArray);
+            string roomName = Config.RoomObject.GameObjectName;
+            MatrixArray.SaveMatrixArrays(roomName, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray, currentPhoto);
+            CustomMesh.SaveMesh(MeshArray, roomName);
+            CustomOrientation.Save(PositionArray, RotationArray, roomName);
             // ERROR TESTING - REMOVE // CustomMesh.SaveSupplementaryInfo(PositionArray, RotationArray);
 
             // Disable the ability to end the photo capture process

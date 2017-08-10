@@ -16,7 +16,7 @@ namespace UWB_Texturing
         }
 
 #if UNITY_EDITOR
-        public static void CreatePrefab(GameObject obj)
+        public static void CreatePrefab(GameObject obj, string roomName)
         {
             if (obj != null)
             {
@@ -24,21 +24,21 @@ namespace UWB_Texturing
                 //AssetDatabase.SaveAssets();
                 //AssetDatabase.Refresh();
 
-                if (!Directory.Exists(Config.Prefab.CompileAbsoluteAssetDirectory()))
+                if (!Directory.Exists(Config.Prefab.CompileAbsoluteAssetDirectory(roomName)))
                 {
                     //Directory.CreateDirectory(Config.Prefab.CompileAbsoluteAssetDirectory());
-                    AbnormalDirectoryHandler.CreateDirectory(Config.Prefab.CompileAbsoluteAssetDirectory());
-                    Debug.Log("Prefab folder created: " + Config.Prefab.CompileAbsoluteAssetDirectory());
+                    AbnormalDirectoryHandler.CreateDirectory(Config.Prefab.CompileAbsoluteAssetDirectory(roomName));
+                    Debug.Log("Prefab folder created: " + Config.Prefab.CompileAbsoluteAssetDirectory(roomName));
                 }
                 //var emptyPrefab = PrefabUtility.CreateEmptyPrefab(CrossPlatformNames.Prefab.CompileCompatibleOutputFolder() + '/' + CrossPlatformNames.Prefab.Filename);
                 //PrefabUtility.ReplacePrefab()
                 //PrefabUtility.CreatePrefab(CrossPlatformNames.Prefab.CompileCompatibleOutputFolder() + '/' + CrossPlatformNames.Prefab.Filename, AssetDatabase.Find)
 
-                PrefabUtility.CreatePrefab(Config.Prefab.CompileUnityAssetDirectory() + '/' + Config.Prefab.CompileFilename(), obj); // CompileCompatibleOutputFolder
+                PrefabUtility.CreatePrefab(Config.Prefab.CompileUnityAssetDirectory(roomName) + '/' + Config.Prefab.CompileFilename(), obj); // CompileCompatibleOutputFolder
                 //PrefabUtility.CreatePrefab(CrossPlatformNames.Prefab.OutputFilepath, obj);
-                Debug.Log("Room prefab generated at " + Config.Prefab.CompileUnityAssetDirectory());
+                Debug.Log("Room prefab generated at " + Config.Prefab.CompileUnityAssetDirectory(roomName));
                 //Debug.Log("Room path = " + CrossPlatformNames.Prefab.OutputFilepath);
-                Debug.Log("Room path = " + Config.Prefab.CompileUnityAssetDirectory() + '/' + Config.Prefab.CompileFilename()); // CompileCompatibleOutputFolder
+                Debug.Log("Room path = " + Config.Prefab.CompileUnityAssetDirectory(roomName) + '/' + Config.Prefab.CompileFilename()); // CompileCompatibleOutputFolder
             }
             else
             {
@@ -46,15 +46,15 @@ namespace UWB_Texturing
             }
         }
 
-        private static void CreatePrefab(string gameObjectName)
+        private static void CreatePrefab(string gameObjectName, string roomName)
         {
             GameObject obj = GameObject.Find(gameObjectName);
-            CreatePrefab(obj);
+            CreatePrefab(obj, roomName);
         }
 
-        public static void DeletePrefabs()
+        public static void DeletePrefabs(string roomName)
         {
-            string absoluteFilepath = Path.Combine(Config.Prefab.CompileAbsoluteAssetDirectory(), Config.Prefab.CompileFilename());
+            string absoluteFilepath = Path.Combine(Config.Prefab.CompileAbsoluteAssetDirectory(roomName), Config.Prefab.CompileFilename());
             File.Delete(absoluteFilepath);
             //absoluteFilepath = Path.Combine(CrossPlatformNames.Prefab.AbsoluteOutputFolder, CrossPlatformNames.Prefab.StandaloneRoom.Filename);
             //File.Delete(absoluteFilepath);

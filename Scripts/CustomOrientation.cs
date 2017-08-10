@@ -31,7 +31,7 @@ namespace UWB_Texturing
         /// to formulate the axis of rotation, and the final item to determine 
         /// the degree of rotation around that axis.)
         /// </param>
-        public static void Save(Vector3[] positionArray, Quaternion[] rotationArray)
+        public static void Save(Vector3[] positionArray, Quaternion[] rotationArray, string roomName)
         {
             string fileContents = "";
 
@@ -63,7 +63,7 @@ namespace UWB_Texturing
             }
 
             // Actually write the calculated string
-            File.WriteAllText(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()), fileContents);
+            File.WriteAllText(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename(), roomName), fileContents);
         }
 
         /// <summary>

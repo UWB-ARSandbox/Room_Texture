@@ -31,7 +31,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Intermediary Processing/Export Asset Bundle", false, 0)]
         public static void BundleRoomTexture_WindowsStandalone()
         {
-            string destinationDirectory = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory();
+            string roomName = Config.RoomObject.GameObjectName;
+            string destinationDirectory = Config.AssetBundle.RawPackage.CompileUnityAssetDirectory(roomName);
             BuildTarget targetPlatform = BuildTarget.StandaloneWindows;
 
             BundleHandler.PackRawRoomTextureBundle(destinationDirectory, targetPlatform);
@@ -44,13 +45,16 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Intermediary Processing/Import Asset Bundle", false, 0)]
         public static void UnbundleRoomTexture()
         {
-            BundleHandler.UnpackRoomTextureBundle();
+            string roomName = Config.RoomObject.GameObjectName;
+            BundleHandler.UnpackRawResourceTextureBundle(roomName);
         }
 
         [UnityEditor.MenuItem("Room Texture/Instantiate Room")]
         public static void InstantiateRoom()
         {
-            BundleHandler.InstantiateRoom();
+            string roomName = Config.RoomObject.GameObjectName;
+            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
+            BundleHandler.InstantiateRoom(roomName);
             //string[] orientationFileLines = File.ReadAllLines(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename()));
             //GameObject room = RoomModel.BuildRoomObject(orientationFileLines);
         }
@@ -58,26 +62,28 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Remove Assets/All")]
         public static void ClearAllRoomAssets()
         {
-            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string roomName = Config.RoomObject.GameObjectName;
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory(roomName);
             string meshesDirectory = materialsDirectory;
             string texturesDirectory = materialsDirectory;
 
             BundleHandler.RemoveRoomObject();
             BundleHandler.RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
-            PrefabHandler.DeletePrefabs();
-            BundleHandler.RemoveRawInfo();
+            PrefabHandler.DeletePrefabs(roomName);
+            BundleHandler.RemoveRawInfo(roomName);
         }
 
         [UnityEditor.MenuItem("Room Texture/Remove Assets/All Finished Room Resources")]
         public static void ClearAllFinishedRoomAssets()
         {
-            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string roomName = Config.RoomObject.GameObjectName;
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory(roomName);
             string meshesDirectory = materialsDirectory;
             string texturesDirectory = materialsDirectory;
 
             BundleHandler.RemoveRoomObject();
             BundleHandler.RemoveRoomResources(materialsDirectory, meshesDirectory, texturesDirectory);
-            PrefabHandler.DeletePrefabs();
+            PrefabHandler.DeletePrefabs(roomName);
         }
 
         [UnityEditor.MenuItem("Room Texture/Remove Assets/Room Object")]
@@ -89,7 +95,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Remove Assets/Stored Assets")]
         public static void ClearRoomResources()
         {
-            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory();
+            string roomName = Config.RoomObject.GameObjectName;
+            string materialsDirectory = Config.Material.CompileAbsoluteAssetDirectory(roomName);
             string meshesDirectory = materialsDirectory;
             string texturesDirectory = materialsDirectory;
 
@@ -99,20 +106,23 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Remove Assets/Prefabs")]
         public static void ClearRoomPrefabs()
         {
-            PrefabHandler.DeletePrefabs();
+            string roomName = Config.RoomObject.GameObjectName;
+            PrefabHandler.DeletePrefabs(roomName);
         }
 
         [UnityEditor.MenuItem("Room Texture/Remove Assets/Raw Info")]
         public static void ClearRawRoomInfo()
         {
-            BundleHandler.RemoveRawInfo();
+            string roomName = Config.RoomObject.GameObjectName;
+            BundleHandler.RemoveRawInfo(roomName);
         }
 
         // ERROR TESTING - UPDATE W/ CORRECT LOGIC
         [UnityEditor.MenuItem("Room Texture/Build Finished Room Bundle")]
         public static void BundleRoom_WindowsStandalone()
         {
-            string destinationDirectory = Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory();
+            string roomName = Config.RoomObject.GameObjectName;
+            string destinationDirectory = Config.AssetBundle.RoomPackage.CompileUnityAssetDirectory(roomName);
             BuildTarget targetPlatform = BuildTarget.StandaloneWindows;
 
             BundleHandler.PackFinalRoomBundle(destinationDirectory, targetPlatform);
@@ -130,7 +140,8 @@ namespace UWB_Texturing
             GameObject roomModel = GameObject.Find(Config.RoomObject.GameObjectName);
             if (roomModel != null)
             {
-                PrefabHandler.CreatePrefab(roomModel);
+                string roomName = Config.RoomObject.GameObjectName;
+                PrefabHandler.CreatePrefab(roomModel, roomName);
             }
             else
             {

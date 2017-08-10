@@ -42,12 +42,12 @@ namespace UWB_Texturing
         #region Main Methods
 
         #region Save Mesh
-        public static void SaveMesh(Mesh mesh)
+        public static void SaveMesh(Mesh mesh, string roomName)
         {
             if (mesh != null)
             {
                 string meshString = WriteMeshString(mesh);
-                string meshFilePath = Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename());
+                string meshFilePath = Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename(), roomName);
                 //Directory.CreateDirectory(meshFilePath);
                 AbnormalDirectoryHandler.CreateDirectoryFromFile(meshFilePath);
                 File.WriteAllText(meshFilePath, meshString);
@@ -65,7 +65,7 @@ namespace UWB_Texturing
         /// <param name="meshes">
         /// A non-null array of meshes with vertices and triangles.
         /// </param>
-        public static void SaveMesh(Mesh[] meshes)
+        public static void SaveMesh(Mesh[] meshes, string roomName)
         {
             if (meshes != null && meshes.Length > 0)
             {
@@ -76,7 +76,7 @@ namespace UWB_Texturing
                     sb.Append(WriteMeshString(meshes[i], i));
                 }
 
-                File.WriteAllText(Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename()), sb.ToString());
+                File.WriteAllText(Config.CustomMesh.CompileAbsoluteAssetPath(Config.CustomMesh.CompileFilename(), roomName), sb.ToString());
             }
             else
             {
@@ -191,13 +191,13 @@ namespace UWB_Texturing
         #endregion
 
         #region Load Mesh
-        public static void LoadMesh(string filepath)
+        public static void LoadMesh(string filepath, string roomName)
         {
             if (File.Exists(filepath))
             {
                 Debug.Log("Filepath for loading meshes = " + filepath);
 
-                LoadMesh(File.ReadAllLines(filepath));
+                LoadMesh(File.ReadAllLines(filepath), roomName);
             }
             else
             {
@@ -205,12 +205,12 @@ namespace UWB_Texturing
             }
         }
 
-        public static void LoadMesh(TextAsset meshAsset)
+        public static void LoadMesh(TextAsset meshAsset, string roomName)
         {
-            LoadMesh(SplitTextAsset(meshAsset));
+            LoadMesh(SplitTextAsset(meshAsset), roomName);
         }
 
-        public static void LoadMesh(string[] fileContents)
+        public static void LoadMesh(string[] fileContents, string roomName)
         {
             // ID the markers at the beginning of each line
             string meshID = MeshID.TrimEnd();
@@ -303,7 +303,7 @@ namespace UWB_Texturing
                     m.RecalculateNormals();
 
 #if UNITY_EDITOR
-                    AssetDatabase.CreateAsset(m, Config.UnityMeshes.CompileUnityAssetPath(Config.UnityMeshes.CompileFilename(meshIndex)));
+                    AssetDatabase.CreateAsset(m, Config.UnityMeshes.CompileUnityAssetPath(Config.UnityMeshes.CompileFilename(meshIndex), roomName));
                     // ERROR TESTING - REMOVE // AssetDatabase.SaveAssets();
 #endif
                     MeshRead = false;
@@ -330,10 +330,12 @@ namespace UWB_Texturing
         /// <returns></returns>
         public static GameObject InstantiateRoomObject(TextAsset roomMeshTextAsset, TextAsset meshSupplementaryInfoTextAsset, bool saveAsAsset)
         {
-            if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory()))
+            string roomName = Config.RoomObject.GameObjectName;
+
+            if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName)))
             {
                 //Directory.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
-                AbnormalDirectoryHandler.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
+                AbnormalDirectoryHandler.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName));
             }
 
             Vector3[] positionArray;
@@ -460,7 +462,7 @@ namespace UWB_Texturing
                     // Save as asset if applicable
                     if (saveAsAsset)
                     {
-                        AssetDatabase.CreateAsset(m, Config.CustomMesh.CompileUnityAssetPath(m.name));
+                        AssetDatabase.CreateAsset(m, Config.CustomMesh.CompileUnityAssetPath(m.name, roomName));
                         AssetDatabase.SaveAssets();
                     }
 #endif
@@ -521,7 +523,7 @@ namespace UWB_Texturing
             string[] files = Directory.GetFiles(meshDirectory);
             for (int i = 0; i < files.Length; i++)
             {
-                if (files[i].Contains(Config.CustomMesh.FilenameWithoutExtension))
+                if (files[i].Contains(Config.CustomMesh.FilenameRoot))
                 {
                     ++numMeshes;
                 }
