@@ -87,6 +87,12 @@ namespace UWB_Texturing
         
         public static GameObject BuildRoomObject(string roomName, string[] orientationFileLines, string unityMeshesRelativeDirectory, string materialsRelativeDirectory)
         {
+            Debug.Log("Building room");
+            Debug.Log("Room name = " + roomName);
+            Debug.Log("Unity meshes relative directory = " + unityMeshesRelativeDirectory);
+            Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
+            Debug.Log("Previous directory = " + Config.UnityMeshes.AssetSubFolder);
+
             if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName)))
             {
                 //Directory.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
@@ -107,6 +113,8 @@ namespace UWB_Texturing
             {
                 GameObject child = new GameObject();
 
+                Debug.Log("mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
+
                 // Set mesh
                 //Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
                 Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i))) as Mesh;
@@ -117,7 +125,12 @@ namespace UWB_Texturing
                 MeshRenderer mr = child.AddComponent<MeshRenderer>();
                 //mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
                 mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
-
+                
+                Debug.Log("Meshes relative directory = " + unityMeshesRelativeDirectory);
+                Debug.Log("Meshes path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
+                Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
+                Debug.Log("Materials path = " + Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
+                
                 // Set position and rotation
                 child.transform.position = positionArray[i];
                 child.transform.rotation = rotationArray[i];
@@ -134,7 +147,7 @@ namespace UWB_Texturing
 
             // Integrate it into the UWB Network
             roomObject.AddComponent<UWBPhotonTransformView>();
-
+            
             return roomObject;
         }
 

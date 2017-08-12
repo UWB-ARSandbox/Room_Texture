@@ -62,16 +62,18 @@ namespace UWB_Texturing
 //#endif
 //        }
 
-        public static void GenerateRoomMaterials(string roomName, Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
+        public static void GenerateRoomMaterials(string roomName, string destinationDirectory, Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
         {
-            if (!Directory.Exists(Config.Material.CompileAbsoluteAssetDirectory(roomName)))
+            //if (!Directory.Exists(Config.Material.CompileAbsoluteAssetDirectory(roomName)))
+            if(!Directory.Exists(destinationDirectory))
             {
                 //Directory.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory());
-                AbnormalDirectoryHandler.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory(roomName));
+                //AbnormalDirectoryHandler.CreateDirectory(Config.Material.CompileAbsoluteAssetDirectory(roomName));
+                AbnormalDirectoryHandler.CreateDirectory(destinationDirectory);
             }
             
             int numMaterials = localToWorldMatrixArray.Length;
-
+            
             Debug.Log("Num of materials = " + numMaterials);
             for(int i = 0; i < numMaterials; i++)
             {
@@ -80,7 +82,14 @@ namespace UWB_Texturing
                 Debug.Log("Material created!");
 
 #if UNITY_EDITOR
-                AssetDatabase.CreateAsset(roomMat, Config.Material.CompileUnityAssetPath(Config.Material.CompileFilename(i), roomName));
+                //AssetDatabase.CreateAsset(roomMat, Config.Material.CompileUnityAssetPath(Config.Material.CompileFilename(i), roomName));
+                string baseDirectory = Config_Base.AbsoluteAssetRootFolder;
+                
+                Debug.Log("Asset root folder = " + baseDirectory);
+
+                string destinationDirectory_Unity = destinationDirectory.Remove(0, baseDirectory.Length - 6);
+                //AssetDatabase.CreateAsset(roomMat, Path.Combine(destinationDirectory_Unity, Config.Material.CompileFilename(i)));
+                AssetDatabase.CreateAsset(roomMat, Path.Combine(destinationDirectory_Unity, Config.Material.CompileFilename(i)));
                 AssetDatabase.SaveAssets();
                 Debug.Log("Material generated in project folder!");
 #endif

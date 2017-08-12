@@ -56,8 +56,8 @@ namespace UWB_Texturing
         }
         public static string CompileResourcesLoadPath(string assetSubDirectory, string assetNameWithoutExtension)
         {
-            int loadPathStartIndex = AssetSubFolder.IndexOf("Resources") + "Resources".Length + 1;
-            if (loadPathStartIndex < AssetSubFolder.Length)
+            int loadPathStartIndex = assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1;
+            if (loadPathStartIndex < assetSubDirectory.Length)
             {
                 //return assetSubDirectory.Substring(assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1) + '/' + assetNameWithoutExtension;
                 return assetSubDirectory.Substring(loadPathStartIndex) + '/' + assetNameWithoutExtension;

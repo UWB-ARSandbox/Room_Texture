@@ -191,13 +191,13 @@ namespace UWB_Texturing
         #endregion
 
         #region Load Mesh
-        public static void LoadMesh(string filepath, string roomName)
+        public static void LoadMesh(string filepath, string destinationDirectory, string roomName)
         {
             if (File.Exists(filepath))
             {
                 Debug.Log("Filepath for loading meshes = " + filepath);
 
-                LoadMesh(File.ReadAllLines(filepath), roomName);
+                LoadMesh(File.ReadAllLines(filepath), destinationDirectory, roomName);
             }
             else
             {
@@ -205,12 +205,12 @@ namespace UWB_Texturing
             }
         }
 
-        public static void LoadMesh(TextAsset meshAsset, string roomName)
+        public static void LoadMesh(TextAsset meshAsset, string destinationDirectory, string roomName)
         {
-            LoadMesh(SplitTextAsset(meshAsset), roomName);
+            LoadMesh(SplitTextAsset(meshAsset), destinationDirectory, roomName);
         }
 
-        public static void LoadMesh(string[] fileContents, string roomName)
+        public static void LoadMesh(string[] fileContents, string destinationDirectory, string roomName)
         {
             // ID the markers at the beginning of each line
             string meshID = MeshID.TrimEnd();
@@ -303,7 +303,10 @@ namespace UWB_Texturing
                     m.RecalculateNormals();
 
 #if UNITY_EDITOR
-                    AssetDatabase.CreateAsset(m, Config.UnityMeshes.CompileUnityAssetPath(Config.UnityMeshes.CompileFilename(meshIndex), roomName));
+                    //AssetDatabase.CreateAsset(m, Config.UnityMeshes.CompileUnityAssetPath(Config.UnityMeshes.CompileFilename(meshIndex), roomName));
+                    string destinationDirectory_Unity = string.Join("/", destinationDirectory.Remove(0, destinationDirectory.IndexOf("Assets")).Split('\\'));
+                    string destinationFilepath_Unity = destinationDirectory_Unity + '/' + Config.UnityMeshes.CompileFilename(meshIndex);
+                    AssetDatabase.CreateAsset(m, destinationFilepath_Unity);
                     // ERROR TESTING - REMOVE // AssetDatabase.SaveAssets();
 #endif
                     MeshRead = false;
