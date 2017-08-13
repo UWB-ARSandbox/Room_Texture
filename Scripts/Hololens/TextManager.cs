@@ -12,6 +12,7 @@ namespace UWB_Texturing
     public static class TextManager
     {
         public static UnityEngine.UI.Text HUD_Text;
+        private static bool isActive = false;
         
         /// <summary>
         /// Publicly accessible hook to start up the TextManager and set 
@@ -30,6 +31,8 @@ namespace UWB_Texturing
             HUD_Text.alignment = TextAnchor.LowerCenter;
             HUD_Text.fontSize = 14;
             HUD_Text.color = Color.red;
+
+            isActive = true;
         }
 
         /// <summary>
@@ -40,6 +43,14 @@ namespace UWB_Texturing
         public static void SetText(string input)
         {
             HUD_Text.text = input;
+        }
+
+        public static bool IsActive
+        {
+            get
+            {
+                return isActive;
+            }
         }
     }
 }
