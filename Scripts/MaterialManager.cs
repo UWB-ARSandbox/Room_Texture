@@ -62,8 +62,11 @@ namespace UWB_Texturing
 //#endif
 //        }
 
-        public static void GenerateRoomMaterials(string roomName, string destinationDirectory, Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
+        public static void GenerateRoomMaterials(Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
         {
+            string roomName = Config.RoomObject.GameObjectName;
+            string destinationDirectory = Config.Material.CompileAbsoluteAssetDirectory(roomName);
+
             //if (!Directory.Exists(Config.Material.CompileAbsoluteAssetDirectory(roomName)))
             if(!Directory.Exists(destinationDirectory))
             {
@@ -195,6 +198,7 @@ namespace UWB_Texturing
         {
             int numMaterials = 0;
             string[] files = Directory.GetFiles(Config.Material.CompileAbsoluteAssetDirectory(roomName));
+            //string[] files = Directory.GetFiles(materialDirectory);
             for(int i = 0; i < files.Length; i++)
             {
                 if (files[i].Contains(Config.Material.FilenameRoot))

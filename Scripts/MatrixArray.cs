@@ -46,8 +46,10 @@ namespace UWB_Texturing
         /// matrix arrays (i.e. matrix arrays are presumed to always be the 
         /// maximum size number of matrices wide).
         /// </param>
-        public static void SaveMatrixArrays(string roomName, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray, int numPhotosTaken)
+        public static void SaveMatrixArrays(Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray, int numPhotosTaken)
         {
+            string roomName = Config.RoomObject.GameObjectName;
+
             // Safeguard
             if(numPhotosTaken > worldToCameraMatrixArray.Length
                 || numPhotosTaken > projectionMatrixArray.Length)
@@ -113,11 +115,14 @@ namespace UWB_Texturing
             File.WriteAllText(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName), fileContents);
         }
 
-        public static bool LoadMatrixArrays_AssetsStored(string roomName, string matrixArrayFilepath, out Matrix4x4[] WorldToCameraMatrixArray, out Matrix4x4[] ProjectionMatrixArray, out Matrix4x4[] LocalToWorldMatrixArray)
+        public static bool LoadMatrixArrays_AssetsStored(out Matrix4x4[] WorldToCameraMatrixArray, out Matrix4x4[] ProjectionMatrixArray, out Matrix4x4[] LocalToWorldMatrixArray)
         {
-            //string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename());
+            string roomName = Config.RoomObject.GameObjectName;
+
+            string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
             Debug.Log("Matrix array filepath = " + matrixArrayFilepath);
-            if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(),roomName)))
+            //if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(),roomName)))
+            if(!File.Exists(matrixArrayFilepath))
             {
                 WorldToCameraMatrixArray = null;
                 ProjectionMatrixArray = null;

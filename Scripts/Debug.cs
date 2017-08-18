@@ -13,5 +13,10 @@ namespace UWB_Texturing
             if(debugging)
                 UnityEngine.Debug.Log(message);
         }
+
+        public static void Error(string message)
+        {
+            UnityEngine.Debug.Log("ERROR: " + message);
+        }
     }
 }

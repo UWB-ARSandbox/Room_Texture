@@ -7,17 +7,73 @@ namespace UWB_Texturing
 {
     public class Config_Base
     {
+        #region Asset Path Event Handling
+        public static event AssetPathChangedEventHandler AssetPathChanged;
+        
+        protected static void OnAssetPathChanged(AssetPathChangedEventArgs e)
+        {
+            if (AssetPathChanged != null)
+                AssetPathChanged(e);
+        }
 
+        public static event AssetSubFolderChangedEventHandler AssetSubFolderChanged;
+
+        protected static void OnAssetSubFolderChanged(AssetSubFolderChangedEventArgs e)
+        {
+            if (AssetSubFolderChanged != null)
+                AssetSubFolderChanged(e);
+        }
+        #endregion
+
+        #region Fields/Properties
 #if UNITY_WSA_10_0
-        public static string AbsoluteAssetRootFolder = Application.persistentDataPath;
+        private static string absoluteAssetRootFolder = Application.persistentDataPath;
 #else
-        public static string AbsoluteAssetRootFolder = Application.dataPath;
+        //public static string absoluteAssetRootFolder = Application.dataPath;
+        private static string absoluteAssetRootFolder = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
 #endif
+        public static string AbsoluteAssetRootFolder
+        {
+            get
+            {
+                return absoluteAssetRootFolder;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    string oldAbsoluteAssetRootFolder = absoluteAssetRootFolder;
+                    string newAbsoluteAssetRootFolder = value;
+                    OnAssetPathChanged(new AssetPathChangedEventArgs(oldAbsoluteAssetRootFolder, newAbsoluteAssetRootFolder));
+                }
+            }
+        }
 
         //public static string AssetSubFolder = "ASL/Room_Texture/Resources/Room";
-        public static string AssetSubFolder = (Directory.Exists(Path.Combine(AbsoluteAssetRootFolder, "ASL"))) // Check if this is freestanding or exists inside of the ASL library
-            ? "ASL/Room_Texture/Resources" 
-            : "Room_Texture/Resources";
+        //public static string assetSubFolder = (Directory.Exists(Path.Combine(AbsoluteAssetRootFolder, "ASL"))) // Check if this is freestanding or exists inside of the ASL library
+        //    ? "ASL/Room_Texture/Resources" 
+        //    : "Room_Texture/Resources";
+        private static string assetSubFolder = "Room_Texture/Resources";
+        public static string AssetSubFolder
+        {
+            get
+            {
+                return assetSubFolder;
+            }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    string oldAssetSubFolder = assetSubFolder;
+                    string newAssetSubFolder = value;
+                    OnAssetSubFolderChanged(new AssetSubFolderChangedEventArgs(oldAssetSubFolder, newAssetSubFolder));
+                }
+            }
+        }
+
+#endregion
+
+        #region Methods
 
         public static string CompileUnityAssetDirectory(string roomName)
         {
@@ -67,5 +123,6 @@ namespace UWB_Texturing
                 return assetNameWithoutExtension;
             }
         }
+#endregion
     }
 }

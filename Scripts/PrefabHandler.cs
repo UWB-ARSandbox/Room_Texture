@@ -13,16 +13,19 @@ namespace UWB_Texturing
         public static class Messages
         {
             public static string GameObjectDoesNotExist = "Room prefab generation failed. Does Room object exist in the scene object hierarchy?";
+            public static string PrefabDoesNotExist = "Room prefab does not exist.";
         }
 
 #if UNITY_EDITOR
-        public static void CreatePrefab(GameObject obj, string roomName)
+        public static void CreateRoomPrefab(GameObject obj)
         {
             if (obj != null)
             {
                 //AssetDatabase.CreateAsset(obj, "Assets/Room Texture/Resources/Test.obj");
                 //AssetDatabase.SaveAssets();
                 //AssetDatabase.Refresh();
+
+                string roomName = Config.RoomObject.GameObjectName;
 
                 if (!Directory.Exists(Config.Prefab.CompileAbsoluteAssetDirectory(roomName)))
                 {
@@ -46,21 +49,48 @@ namespace UWB_Texturing
             }
         }
 
-        private static void CreatePrefab(string gameObjectName, string roomName)
+        private static void CreatePrefab(string gameObjectName)
         {
             GameObject obj = GameObject.Find(gameObjectName);
-            CreatePrefab(obj, roomName);
+            CreateRoomPrefab(obj);
         }
 
-        public static void DeletePrefabs(string roomName)
+        public static void DeletePrefab(string roomName)
         {
-            string absoluteFilepath = Path.Combine(Config.Prefab.CompileAbsoluteAssetDirectory(roomName), Config.Prefab.CompileFilename());
-            File.Delete(absoluteFilepath);
+            //string absoluteFilepath = Path.Combine(Config.Prefab.CompileAbsoluteAssetDirectory(roomName), Config.Prefab.CompileFilename());
+            string absoluteFilepath = Config.Prefab.CompileAbsoluteAssetPath(Config.Prefab.CompileFilename(), roomName);
+            if (File.Exists(absoluteFilepath))
+            {
+                File.Delete(absoluteFilepath);
+            }
+            else
+            {
+                UnityEngine.Debug.Log(Messages.PrefabDoesNotExist);
+            }
             //absoluteFilepath = Path.Combine(CrossPlatformNames.Prefab.AbsoluteOutputFolder, CrossPlatformNames.Prefab.StandaloneRoom.Filename);
             //File.Delete(absoluteFilepath);
 #if UNITY_EDITOR
             AssetDatabase.Refresh();
 #endif
+        }
+
+        public static void DeletePrefab(string[] roomNames)
+        {
+            string originalRoomName = Config.RoomObject.GameObjectName;
+
+            foreach(string roomName in roomNames)
+            {
+                Config.RoomObject.GameObjectName = roomName;
+                DeletePrefab(roomName);
+            }
+
+            Config.RoomObject.GameObjectName = originalRoomName;
+        }
+
+        public static void DeleteAllPrefabs()
+        {
+            string[] roomNames = RoomManager.GetAllRoomNames();
+            DeletePrefab(roomNames);
         }
 #endif
     }

@@ -19,7 +19,7 @@ namespace UWB_Texturing
         //public static string AssetSubFolder = "Room_Texture" + '/' + "Resources" + '/' + ResourcesSubFolder;
         //public static string LocalAssetFolder = "Assets" + '/' + AssetSubFolder;
         //public static string AbsoluteAssetFolder = Path.Combine(Application.dataPath, AssetSubFolder);
-
+        
         /// <summary>
         /// Information regarding naming convention for room texture images 
         /// passed around.

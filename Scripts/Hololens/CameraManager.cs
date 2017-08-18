@@ -25,8 +25,8 @@ namespace UWB_Texturing {
     /// Assumes inclusion of SpatialMapping prefab in scene object hierarchy.
     /// </summary>
     public static class CameraManager {
-#if WINDOWS_UWP
-//#if UNITY_WSA_10_0
+//#if WINDOWS_UWP
+#if UNITY_WSA_10_0
         /// <summary>
         /// Output messages stored to be used in debug logs, textual feedback, or exceptions.
         /// </summary>
@@ -318,9 +318,9 @@ namespace UWB_Texturing {
             SetLocalToWorldMatrices(); // Must be called before SaveMatrixArrays
             SetMeshSupplementaryInfo();
             string roomName = Config.RoomObject.GameObjectName;
-            MatrixArray.SaveMatrixArrays(roomName, WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray, currentPhoto);
-            CustomMesh.SaveMesh(MeshArray, roomName);
-            CustomOrientation.Save(PositionArray, RotationArray, roomName);
+            MatrixArray.SaveMatrixArrays(WorldToCameraMatrixArray, ProjectionMatrixArray, LocalToWorldMatrixArray, currentPhoto);
+            CustomMesh.SaveMesh(MeshArray);
+            CustomOrientation.Save(PositionArray, RotationArray);
             // ERROR TESTING - REMOVE // CustomMesh.SaveSupplementaryInfo(PositionArray, RotationArray);
 
             // Disable the ability to end the photo capture process

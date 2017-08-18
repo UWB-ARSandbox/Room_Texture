@@ -31,8 +31,9 @@ namespace UWB_Texturing
         /// to formulate the axis of rotation, and the final item to determine 
         /// the degree of rotation around that axis.)
         /// </param>
-        public static void Save(Vector3[] positionArray, Quaternion[] rotationArray, string roomName)
+        public static void Save(Vector3[] positionArray, Quaternion[] rotationArray)
         {
+            string roomName = Config.RoomObject.GameObjectName;
             string fileContents = "";
 
             // Save the positions of instantiated meshes

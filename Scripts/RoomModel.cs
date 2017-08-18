@@ -46,7 +46,7 @@ namespace UWB_Texturing
         public void GetMatrixData(string roomName, string matrixArrayFilepath, out Matrix4x4[] worldToCameraMatrixArray, out Matrix4x4[] projectionMatrixArray, out Matrix4x4[] localToWorldMatrixArray)
         {
             // Try loading from file
-            bool loaded = MatrixArray.LoadMatrixArrays_AssetsStored(roomName, matrixArrayFilepath, out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
+            bool loaded = MatrixArray.LoadMatrixArrays_AssetsStored(out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
             // If file not available, try loading from asset bundle
             if (!loaded)
             {
@@ -84,13 +84,15 @@ namespace UWB_Texturing
                 }
             }
         }
-        
-        public static GameObject BuildRoomObject(string roomName, string[] orientationFileLines, string unityMeshesRelativeDirectory, string materialsRelativeDirectory)
+
+        public static GameObject BuildRoomObject(string[] orientationFileLines)
         {
+            string roomName = Config.RoomObject.GameObjectName;
+
             Debug.Log("Building room");
             Debug.Log("Room name = " + roomName);
-            Debug.Log("Unity meshes relative directory = " + unityMeshesRelativeDirectory);
-            Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
+            //Debug.Log("Unity meshes relative directory = " + unityMeshesRelativeDirectory);
+            //Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
             Debug.Log("Previous directory = " + Config.UnityMeshes.AssetSubFolder);
 
             if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName)))
@@ -101,7 +103,7 @@ namespace UWB_Texturing
 
             Vector3[] positionArray;
             Quaternion[] rotationArray;
-            
+
             // Load up the information stored from mesh supplementary information 
             // to correct for Hololens mesh translation and orientation.
             CustomOrientation.Load(orientationFileLines, out positionArray, out rotationArray);
@@ -109,28 +111,29 @@ namespace UWB_Texturing
             GameObject roomObject = new GameObject();
             //roomObject.name = Config.RoomObject.GameObjectName;
             roomObject.name = roomName;
-            for(int i = 0; i < positionArray.Length; i++)
+            for (int i = 0; i < positionArray.Length; i++)
             {
                 GameObject child = new GameObject();
 
-                Debug.Log("mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
+                Debug.Log("Mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i)));
+                //Debug.Log("mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
 
                 // Set mesh
-                //Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
-                Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+                Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+                //Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i))) as Mesh;
                 MeshFilter mf = child.AddComponent<MeshFilter>();
                 mf.sharedMesh = childMesh;
 
                 // Set material
                 MeshRenderer mr = child.AddComponent<MeshRenderer>();
-                //mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
-                mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
-                
-                Debug.Log("Meshes relative directory = " + unityMeshesRelativeDirectory);
-                Debug.Log("Meshes path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
-                Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
-                Debug.Log("Materials path = " + Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
-                
+                mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
+                //mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
+
+                //Debug.Log("Meshes relative directory = " + unityMeshesRelativeDirectory);
+                //Debug.Log("Meshes path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
+                //Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
+                //Debug.Log("Materials path = " + Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
+
                 // Set position and rotation
                 child.transform.position = positionArray[i];
                 child.transform.rotation = rotationArray[i];
@@ -147,86 +150,76 @@ namespace UWB_Texturing
 
             // Integrate it into the UWB Network
             roomObject.AddComponent<UWBPhotonTransformView>();
-            
+
             return roomObject;
         }
 
-
-        //============================================================
-
-
-
-        //public void FirstTimeSetup(float refreshTime, Texture2DArray tex2DArr, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
+        //public static GameObject BuildRoomObject(string roomName, string[] orientationFileLines, string unityMeshesRelativeDirectory, string materialsRelativeDirectory)
         //{
-        //    Debug.Log("WorldToCam in FirstTimeSetup is null " + ((worldToCameraMatrixArray == null) ? "true" : "false"));
+        //    Debug.Log("Building room");
+        //    Debug.Log("Room name = " + roomName);
+        //    Debug.Log("Unity meshes relative directory = " + unityMeshesRelativeDirectory);
+        //    Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
+        //    Debug.Log("Previous directory = " + Config.UnityMeshes.AssetSubFolder);
 
-        //    //DeepCopyTextureItems(tex2DArr, worldToCameraMatrixArray, projectionMatrixArray, localToWorldMatrixArray);
-        //    DeepCopyTextureItems_AssetsStored();
-        //    MaterialManager.GenerateRoomMaterials(tex2DArr, worldToCameraMatrixArray, projectionMatrixArray, localToWorldMatrixArray);
-        //    //InvokeRepeating("SetShaderParams_AssetsStored", 0.0f, refreshTime);
-        //    BeginShaderRefreshCycle(refreshTime);
-        //}
-
-        
-
-       
-        //public static void DeepCopyTextureItems_AssetsStored()
-        //{
-        //    // Grab the Texture2DArray from the asset hierarchy
-        //    string texArrName = CrossPlatformNames.Texture2DArray.ArrayName;
-        //    Texture2DArray texArr = Resources.Load(CrossPlatformNames.Texture2DArray.GetResourcesLoadPath(texArrName)) as Texture2DArray;
-
-        //    // Grab the worldToCameraMatrixArray
-        //    Matrix4x4[] wtcMA;
-        //    // Grab the projectionMatrixArray
-        //    Matrix4x4[] pMA;
-        //    // Grab the localToWorldMatrixArray
-        //    Matrix4x4[] ltwMA;
-        //    MatrixArray.LoadMatrixArrays_AssetsStored(out wtcMA, out pMA, out ltwMA);
-
-        //    DeepCopyTextureItems(texArr, wtcMA, pMA, ltwMA);
-        //}
-
-        ///// <summary>
-        ///// Deep copies objects passed in to the corresponding arrays and 
-        ///// Texture2DArray for reference during repetitive shader parameter 
-        ///// setting.
-        ///// </summary>
-        ///// <param name="texArr">
-        ///// Texture2DArray to copy.
-        ///// </param>
-        ///// <param name="worldToCamArr">
-        ///// WorldToCamera matrix array to copy. (Matrix that translates 
-        ///// vertices from world space to camera/view space.)
-        ///// </param>
-        ///// <param name="projectorArray">
-        ///// Projection matrix array to copy. (Matrix that translates from
-        ///// camera/view space to clip space.)
-        ///// </param>
-        ///// <param name="localToWorldArr">
-        ///// LocalToWorld matrix array to copy. (Matrix that translates from
-        ///// model coordinate space to world space.)
-        ///// </param>
-        //public static void DeepCopyTextureItems(Texture2DArray texArr, Matrix4x4[] worldToCamArr, Matrix4x4[] projectorArray, Matrix4x4[] localToWorldArr)
-        //{
-        //    // Deep copy Texture2DArray
-        //    TextureArray = new Texture2DArray(texArr.width, texArr.height, texArr.depth, TextureFormat.RGBA32, false);
-        //    for (int i = 0; i < texArr.depth; i++)
+        //    if (!Directory.Exists(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName)))
         //    {
-        //        TextureArray.SetPixels(texArr.GetPixels(i), i);
+        //        //Directory.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory());
+        //        AbnormalDirectoryHandler.CreateDirectory(Config.CustomMesh.CompileAbsoluteAssetDirectory(roomName));
         //    }
-        //    TextureArray.Apply();
-        //    // Deep copy worldToCameraMatrixArray
-        //    worldToCameraMatrixArray = new Matrix4x4[worldToCamArr.Length];
-        //    worldToCamArr.CopyTo(worldToCameraMatrixArray, 0);
-        //    // Deep copy projectionMatrixArray
-        //    projectionMatrixArray = new Matrix4x4[projectorArray.Length];
-        //    projectorArray.CopyTo(projectionMatrixArray, 0);
-        //    // Deep copy localToWorldMatrixArray
-        //    localToWorldMatrixArray = new Matrix4x4[localToWorldArr.Length];
-        //    localToWorldArr.CopyTo(localToWorldMatrixArray, 0);
-        //}
 
+        //    Vector3[] positionArray;
+        //    Quaternion[] rotationArray;
+            
+        //    // Load up the information stored from mesh supplementary information 
+        //    // to correct for Hololens mesh translation and orientation.
+        //    CustomOrientation.Load(orientationFileLines, out positionArray, out rotationArray);
+
+        //    GameObject roomObject = new GameObject();
+        //    //roomObject.name = Config.RoomObject.GameObjectName;
+        //    roomObject.name = roomName;
+        //    for(int i = 0; i < positionArray.Length; i++)
+        //    {
+        //        GameObject child = new GameObject();
+
+        //        Debug.Log("mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
+
+        //        // Set mesh
+        //        //Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+        //        Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+        //        MeshFilter mf = child.AddComponent<MeshFilter>();
+        //        mf.sharedMesh = childMesh;
+
+        //        // Set material
+        //        MeshRenderer mr = child.AddComponent<MeshRenderer>();
+        //        //mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
+        //        mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
+                
+        //        Debug.Log("Meshes relative directory = " + unityMeshesRelativeDirectory);
+        //        Debug.Log("Meshes path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
+        //        Debug.Log("Materials relative directory = " + materialsRelativeDirectory);
+        //        Debug.Log("Materials path = " + Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
+                
+        //        // Set position and rotation
+        //        child.transform.position = positionArray[i];
+        //        child.transform.rotation = rotationArray[i];
+
+        //        // Set name
+        //        child.name = childMesh.name;
+        //        child.transform.parent = roomObject.transform;
+
+        //        // Add mesh collider
+        //        MeshCollider mc = child.AddComponent<MeshCollider>();
+        //        mc.sharedMesh = childMesh;
+        //    }
+        //    roomObject.AddComponent<RoomModel>();
+
+        //    // Integrate it into the UWB Network
+        //    roomObject.AddComponent<UWBPhotonTransformView>();
+            
+        //    return roomObject;
+        //}
+        
         #endregion
     }
 }
