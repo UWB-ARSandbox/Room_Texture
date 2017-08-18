@@ -25,7 +25,7 @@ namespace UWB_Texturing
             
             Debug.Log("Room name = " + roomName);
             Debug.Log("rawResource bundle path = " + rawResourceBundlePath);
-            
+
             BundleHandler.InstantiateRoom(rawResourceBundlePath);
         }
 

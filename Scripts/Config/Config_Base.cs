@@ -57,10 +57,10 @@ namespace UWB_Texturing
         }
 
         //public static string AssetSubFolder = "ASL/Room_Texture/Resources/Room";
-        //public static string assetSubFolder = (Directory.Exists(Path.Combine(AbsoluteAssetRootFolder, "ASL"))) // Check if this is freestanding or exists inside of the ASL library
-        //    ? "ASL/Room_Texture/Resources" 
-        //    : "Room_Texture/Resources";
-        private static string assetSubFolder = "Room_Texture/Resources/Rooms";
+        public static string assetSubFolder = (Directory.Exists(Path.Combine(AbsoluteAssetRootFolder, "ASL"))) // Check if this is freestanding or exists inside of the ASL library
+            ? "ASL/Room_Texture/Resources/Rooms"
+            : "Room_Texture/Resources/Rooms";
+        //private static string assetSubFolder = "Room_Texture/Resources/Rooms";
         public static string AssetSubFolder
         {
             get
