@@ -114,19 +114,19 @@ namespace UWB_Texturing
             for (int i = 0; i < positionArray.Length; i++)
             {
                 GameObject child = new GameObject();
-
-                Debug.Log("Mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i)));
+                
+                Debug.Log("Mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i), roomName));
                 //Debug.Log("mesh resource load path = " + Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i)));
-
+                
                 // Set mesh
-                Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i))) as Mesh;
+                Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(Config.UnityMeshes.CompileMeshName(i), roomName)) as Mesh;
                 //Mesh childMesh = Resources.Load(Config.UnityMeshes.CompileResourcesLoadPath(unityMeshesRelativeDirectory, Config.UnityMeshes.CompileMeshName(i))) as Mesh;
                 MeshFilter mf = child.AddComponent<MeshFilter>();
                 mf.sharedMesh = childMesh;
 
                 // Set material
                 MeshRenderer mr = child.AddComponent<MeshRenderer>();
-                mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i)));
+                mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(Config.Material.CompileMaterialName(i), roomName));
                 //mr.sharedMaterial = Resources.Load<Material>(Config.Material.CompileResourcesLoadPath(materialsRelativeDirectory, Config.Material.CompileMaterialName(i)));
 
                 //Debug.Log("Meshes relative directory = " + unityMeshesRelativeDirectory);

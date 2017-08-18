@@ -149,12 +149,12 @@ namespace UWB_Texturing
             mat.SetMatrix("_MyObjectToWorld", localToWorldMatrix);
         }
 
-        public static Material GetRoomMaterial(int index)
+        public static Material GetRoomMaterial(string roomName, int index)
         {
             //Material roomMat = Resources.Load(CrossPlatformNames.Material.CompileAssetPath(CrossPlatformNames.Material.CompileAssetName(index))) as Material;
             string assetName = Config.Material.CompileMaterialName(index);
 
-            Material roomMat = Resources.Load(Config.Material.CompileResourcesLoadPath(assetName)) as Material;
+            Material roomMat = Resources.Load(Config.Material.CompileResourcesLoadPath(assetName, roomName)) as Material;
 
             return roomMat;
         }

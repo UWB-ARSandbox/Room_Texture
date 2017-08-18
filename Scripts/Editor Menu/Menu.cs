@@ -22,6 +22,10 @@ namespace UWB_Texturing
         {
             string roomName = Config.RoomObject.GameObjectName;
             string rawResourceBundlePath = Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName);
+            
+            Debug.Log("Room name = " + roomName);
+            Debug.Log("rawResource bundle path = " + rawResourceBundlePath);
+            
             BundleHandler.InstantiateRoom(rawResourceBundlePath);
         }
 

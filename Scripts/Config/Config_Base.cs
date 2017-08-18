@@ -12,6 +12,8 @@ namespace UWB_Texturing
         
         protected static void OnAssetPathChanged(AssetPathChangedEventArgs e)
         {
+            Debug.Log("OnAssetPathChanged triggered! new path = " + e.NewRootFolder + "; old path = " + e.OldRootFolder);
+            
             if (AssetPathChanged != null)
                 AssetPathChanged(e);
         }
@@ -20,8 +22,12 @@ namespace UWB_Texturing
 
         protected static void OnAssetSubFolderChanged(AssetSubFolderChangedEventArgs e)
         {
+            Debug.Log("OnAssetSubFolderChanged triggered! new path = " + e.NewSubFolder + "; old path = " + e.OldSubFolder);
+            Debug.Log("raw resource bundle path = " + Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), Config.RoomObject.GameObjectName));
+            
             if (AssetSubFolderChanged != null)
                 AssetSubFolderChanged(e);
+            
         }
         #endregion
 
@@ -44,6 +50,7 @@ namespace UWB_Texturing
                 {
                     string oldAbsoluteAssetRootFolder = absoluteAssetRootFolder;
                     string newAbsoluteAssetRootFolder = value;
+                    absoluteAssetRootFolder = newAbsoluteAssetRootFolder;
                     OnAssetPathChanged(new AssetPathChangedEventArgs(oldAbsoluteAssetRootFolder, newAbsoluteAssetRootFolder));
                 }
             }
@@ -53,7 +60,7 @@ namespace UWB_Texturing
         //public static string assetSubFolder = (Directory.Exists(Path.Combine(AbsoluteAssetRootFolder, "ASL"))) // Check if this is freestanding or exists inside of the ASL library
         //    ? "ASL/Room_Texture/Resources" 
         //    : "Room_Texture/Resources";
-        private static string assetSubFolder = "Room_Texture/Resources";
+        private static string assetSubFolder = "Room_Texture/Resources/Rooms";
         public static string AssetSubFolder
         {
             get
@@ -66,6 +73,7 @@ namespace UWB_Texturing
                 {
                     string oldAssetSubFolder = assetSubFolder;
                     string newAssetSubFolder = value;
+                    assetSubFolder = newAssetSubFolder;
                     OnAssetSubFolderChanged(new AssetSubFolderChangedEventArgs(oldAssetSubFolder, newAssetSubFolder));
                 }
             }
@@ -96,13 +104,13 @@ namespace UWB_Texturing
         {
             return Path.Combine(CompileAbsoluteAssetDirectory(roomName), filename);
         }
-        public static string CompileResourcesLoadPath(string assetNameWithoutExtension)
+        public static string CompileResourcesLoadPath(string assetNameWithoutExtension, string roomName)
         {
-            int loadPathStartIndex = AssetSubFolder.IndexOf("Resources") + "Resources".Length + 1;
-            if (loadPathStartIndex < AssetSubFolder.Length)
+            int loadPathStartIndex = CompileUnityAssetDirectory(roomName).IndexOf("Resources") + "Resources".Length + 1;
+            if (loadPathStartIndex < CompileUnityAssetDirectory(roomName).Length)
             {
                 //return AssetSubFolder.Substring(AssetSubFolder.IndexOf("Resources") + "Resources".Length + 1) + '/' + assetNameWithoutExtension;
-                return AssetSubFolder.Substring(loadPathStartIndex) + '/' + assetNameWithoutExtension;
+                return CompileUnityAssetDirectory(roomName).Substring(loadPathStartIndex) + '/' + assetNameWithoutExtension;
             }
             else
             {
@@ -110,19 +118,19 @@ namespace UWB_Texturing
             }
             //return ResourcesSubFolder + '/' + assetNameWithoutExtension;
         }
-        public static string CompileResourcesLoadPath(string assetSubDirectory, string assetNameWithoutExtension)
-        {
-            int loadPathStartIndex = assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1;
-            if (loadPathStartIndex < assetSubDirectory.Length)
-            {
-                //return assetSubDirectory.Substring(assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1) + '/' + assetNameWithoutExtension;
-                return assetSubDirectory.Substring(loadPathStartIndex) + '/' + assetNameWithoutExtension;
-            }
-            else
-            {
-                return assetNameWithoutExtension;
-            }
-        }
+        //public static string CompileResourcesLoadPath(string assetSubDirectory, string assetNameWithoutExtension)
+        //{
+        //    int loadPathStartIndex = assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1;
+        //    if (loadPathStartIndex < assetSubDirectory.Length)
+        //    {
+        //        //return assetSubDirectory.Substring(assetSubDirectory.IndexOf("Resources") + "Resources".Length + 1) + '/' + assetNameWithoutExtension;
+        //        return assetSubDirectory.Substring(loadPathStartIndex) + '/' + assetNameWithoutExtension;
+        //    }
+        //    else
+        //    {
+        //        return assetNameWithoutExtension;
+        //    }
+        //}
 #endregion
     }
 }
