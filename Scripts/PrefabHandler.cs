@@ -25,7 +25,8 @@ namespace UWB_Texturing
                 //AssetDatabase.SaveAssets();
                 //AssetDatabase.Refresh();
 
-                string roomName = Config.RoomObject.GameObjectName;
+                //string roomName = Config.RoomObject.GameObjectName;
+                string roomName = obj.name ?? Config.RoomObject.GameObjectName;
 
                 if (!Directory.Exists(Config.Prefab.CompileAbsoluteAssetDirectory(roomName)))
                 {
@@ -37,16 +38,50 @@ namespace UWB_Texturing
                 //PrefabUtility.ReplacePrefab()
                 //PrefabUtility.CreatePrefab(CrossPlatformNames.Prefab.CompileCompatibleOutputFolder() + '/' + CrossPlatformNames.Prefab.Filename, AssetDatabase.Find)
 
-                PrefabUtility.CreatePrefab(Config.Prefab.CompileUnityAssetDirectory(roomName) + '/' + Config.Prefab.CompileFilename(), obj); // CompileCompatibleOutputFolder
+                //PrefabUtility.CreatePrefab(Config.Prefab.CompileUnityAssetDirectory(roomName) + '/' + Config.Prefab.CompileFilename(), obj); // CompileCompatibleOutputFolder
+                PrefabUtility.CreatePrefab(Config.Prefab.CompileUnityAssetPath(Config.Prefab.CompileFilename(), roomName), obj);
                 //PrefabUtility.CreatePrefab(CrossPlatformNames.Prefab.OutputFilepath, obj);
+                
                 Debug.Log("Room prefab generated at " + Config.Prefab.CompileUnityAssetDirectory(roomName));
                 //Debug.Log("Room path = " + CrossPlatformNames.Prefab.OutputFilepath);
-                Debug.Log("Room path = " + Config.Prefab.CompileUnityAssetDirectory(roomName) + '/' + Config.Prefab.CompileFilename()); // CompileCompatibleOutputFolder
+                //Debug.Log("Room path = " + Config.Prefab.CompileUnityAssetDirectory(roomName) + '/' + Config.Prefab.CompileFilename()); // CompileCompatibleOutputFolder
+                Debug.Log("Room path = " + Config.Prefab.CompileUnityAssetPath(Config.Prefab.CompileFilename(), roomName));
             }
             else
             {
-                Debug.Log(Messages.GameObjectDoesNotExist);
+                //UnityEngine.Debug.Log(Messages.GameObjectDoesNotExist);
+
+                //string originalRoomName = Config.RoomObject.GameObjectName;
+
+                //Config.RoomObject.GameObjectName = obj.name;
+                //BundleHandler.InstantiateRoom(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), obj.name));
+                BundleHandler.InstantiateRoom(Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), Config.RoomObject.GameObjectName));
+
+                CreateRoomPrefab(GameObject.Find(Config.RoomObject.GameObjectName));
+
+                BundleHandler.RemoveRoomObject(Config.RoomObject.GameObjectName);
+
+                //Config.RoomObject.GameObjectName = originalRoomName;
             }
+
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+#endif
+        }
+
+        public static void CreateAllRoomPrefabs()
+        {
+            string originalRoomName = Config.RoomObject.GameObjectName;
+
+            string[] roomNames = RoomManager.GetAllRoomNames();
+            foreach(string roomName in roomNames)
+            {
+                Config.RoomObject.GameObjectName = roomName;
+                GameObject room = GameObject.Find(roomName);
+                CreateRoomPrefab(room);
+            }
+
+            Config.RoomObject.GameObjectName = originalRoomName;
         }
 
         private static void CreatePrefab(string gameObjectName)

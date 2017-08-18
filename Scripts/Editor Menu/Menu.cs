@@ -17,7 +17,7 @@ namespace UWB_Texturing
     {
 #if UNITY_EDITOR
         #region Instantiate
-        [UnityEditor.MenuItem("Room Texture/Instantiate/Current Room", false, 0)]
+        [UnityEditor.MenuItem("Room Texture/Instantiate/Current Room/GameObject", false, 0)]
         public static void InstantiateRoom()
         {
             string roomName = Config.RoomObject.GameObjectName;
@@ -29,12 +29,29 @@ namespace UWB_Texturing
             BundleHandler.InstantiateRoom(rawResourceBundlePath);
         }
 
-        [UnityEditor.MenuItem("Room Texture/Instantiate/All Rooms", false, 0)]
+        [UnityEditor.MenuItem("Room Texture/Instantiate/All Rooms/GameObjects", false, 0)]
         public static void InstantiateAllRooms()
         {
             BundleHandler.InstantiateAllRooms();
         }
-#endregion
+        #endregion
+
+        #region Prefabs
+
+        [UnityEditor.MenuItem("Room Texture/Instantiate/Current Room/Prefab", false, 0)]
+        public static void InstantiateRoomPrefab()
+        {
+            GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);
+            PrefabHandler.CreateRoomPrefab(room);
+        }
+        
+        [UnityEditor.MenuItem("Room Texture/Instantiate/All Rooms/Prefabs", false, 0)]
+        public static void InstantiateAllRoomPrefabs()
+        {
+            PrefabHandler.CreateAllRoomPrefabs();
+        }
+
+        #endregion
 
         #region Delete
         [UnityEditor.MenuItem("Room Texture/Delete/Current Room/GameObject", false, 0)]
