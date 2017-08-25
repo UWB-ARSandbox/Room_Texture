@@ -545,12 +545,16 @@ namespace UWB_Texturing
             TextAsset roomMeshesTextAsset = roomTextureBundle.LoadAsset(Config.CustomMesh.FilenameRoot.ToLower()) as TextAsset;
 
             string customMatricesFilepath = Path.Combine(customMatricesDestinationDirectory, Config.MatrixArray.CompileFilename());
-            File.WriteAllLines(customMatricesFilepath, roomMatricesTextAsset.text.Split('\n'));
+            //File.WriteAllLines(customMatricesFilepath, roomMatricesTextAsset.text.Split('\n'));
+            //File.WriteAllLines(customMatricesFilepath, string.Join(null, roomMatricesTextAsset.text.Split('\n')).Split(new string[1] { "\r\r" }, System.StringSplitOptions.None));
+            File.WriteAllLines(customMatricesFilepath, roomMatricesTextAsset.text.Split(new string[1] { "\r\n" }, System.StringSplitOptions.None));
             //File.WriteAllLines(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename()), roomMatricesTextAsset.text.Split('\n'));
             string customOrientationFilepath = Path.Combine(customOrientationDestinationDirectory, Config.CustomOrientation.CompileFilename());
-            File.WriteAllLines(customOrientationFilepath, roomOrientationTextAsset.text.Split('\n'));
+            //File.WriteAllLines(customOrientationFilepath, roomOrientationTextAsset.text.Split('\n'));
+            File.WriteAllLines(customOrientationFilepath, roomOrientationTextAsset.text.Split(new string[1] { "\r\n" }, System.StringSplitOptions.None));
             string customMeshesFilepath = Path.Combine(customMeshesDestinationDirectory, Config.CustomMesh.CompileFilename());
-            File.WriteAllLines(customMeshesFilepath, roomMeshesTextAsset.text.Split('\n'));
+            //File.WriteAllLines(customMeshesFilepath, roomMeshesTextAsset.text.Split('\n'));
+            File.WriteAllLines(customMeshesFilepath, roomMeshesTextAsset.text.Split(new string[1] { "\r\n" }, System.StringSplitOptions.None));
 
             // Extract textures
             Texture2D[] rawBundledTexArray = roomTextureBundle.LoadAllAssets<Texture2D>();
