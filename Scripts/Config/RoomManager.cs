@@ -33,9 +33,16 @@ namespace UWB_Texturing
             }
         }
 
-        public void SyncRoomName()
+        public void SyncDisplayedRoomName()
         {
             RoomName = Config.RoomObject.GameObjectName;
+        }
+
+        public static string SyncRoomName()
+        {
+            string roomName = GameObject.Find("RoomManager").GetComponent<RoomManager>().RoomName;
+            UWB_Texturing.Config.RoomObject.GameObjectName = roomName;
+            return roomName;
         }
 
         public static string[] GetAllRoomNames()

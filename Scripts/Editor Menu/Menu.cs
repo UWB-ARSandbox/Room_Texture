@@ -20,7 +20,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Instantiate/Current Room/GameObject", false, 0)]
         public static void InstantiateRoom()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
+            //string roomName = Config.RoomObject.GameObjectName;
             string rawResourceBundlePath = Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName);
             
             Debug.Log("Room name = " + roomName);
@@ -41,7 +42,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Instantiate/Current Room/Prefab", false, 0)]
         public static void InstantiateRoomPrefab()
         {
-            GameObject room = GameObject.Find(Config.RoomObject.GameObjectName);
+            string roomName = RoomManager.SyncRoomName();
+            GameObject room = GameObject.Find(roomName);
             PrefabHandler.CreateRoomPrefab(room);
         }
         
@@ -57,7 +59,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Delete/Current Room/GameObject", false, 0)]
         public static void RemoveRoomObject()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             BundleHandler.RemoveRoomObject(roomName);
         }
 
@@ -70,7 +73,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Delete/Current Room/Prefab", false, 0)]
         public static void RemoveRoomPrefab()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             PrefabHandler.DeletePrefab(roomName);
         }
 
@@ -83,7 +87,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Delete/Current Room/Resources", false, 0)]
         public static void RemoveRoomResources()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             BundleHandler.RemoveRoomResources(roomName);
         }
 
@@ -96,7 +101,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Delete/Current Room/Raw Info", false, 0)]
         public static void RemoveRoomRawInfo()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             BundleHandler.RemoveRawInfo(roomName);
         }
 
@@ -109,7 +115,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Delete/Current Room/Everything", false, 0)]
         public static void RemoveEverything()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             BundleHandler.RemoveRoomObject(roomName);
             BundleHandler.RemoveRoomResources(roomName);
             BundleHandler.RemoveRawInfo(roomName);
@@ -128,6 +135,7 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Bundle/Room Resource Bundle/Pack/Current Room", false, 0)]
         public static void PackRoomResourceBundle()
         {
+            RoomManager.SyncRoomName();
             BundleHandler.PackRawRoomTextureBundle(BuildTarget.StandaloneWindows);
         }
 
@@ -140,19 +148,22 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Bundle/Room Bundle/Pack/Current Room", false, 0)]
         public static void PackRoomBundle()
         {
+            RoomManager.SyncRoomName();
             BundleHandler.PackFinalRoomBundle(BuildTarget.StandaloneWindows);
         }
         
         [UnityEditor.MenuItem("Room Texture/Bundle/Room Bundle/Pack/All Rooms", false, 0)]
         public static void PackAllRoomBundles()
         {
-            BundleHandler.PackFinalRoomBundle(BuildTarget.StandaloneWindows);
+            //BundleHandler.PackFinalRoomBundle(BuildTarget.StandaloneWindows);
+            BundleHandler.PackAllFinalRoomBundles(BuildTarget.StandaloneWindows);
         }
 
         [UnityEditor.MenuItem("Room Texture/Bundle/Room Resource Bundle/Unpack/Current Room", false, 0)]
         public static void UnpackRoomResourceBundle()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             string rawRoomBundlePath = Config.AssetBundle.RawPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RawPackage.CompileFilename(), roomName);
             BundleHandler.UnpackRawResourceTextureBundle(rawRoomBundlePath);
         }
@@ -166,7 +177,8 @@ namespace UWB_Texturing
         [UnityEditor.MenuItem("Room Texture/Bundle/Room Bundle/Unpack/Current Room", false, 0)]
         public static void UnpackRoomBundle()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = RoomManager.SyncRoomName();
             string roomBundlePath = Config.AssetBundle.RoomPackage.CompileAbsoluteAssetPath(Config.AssetBundle.RoomPackage.CompileFilename(), roomName);
             BundleHandler.UnpackFinalRoomTextureBundle(roomBundlePath);
         }

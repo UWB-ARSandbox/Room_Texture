@@ -1,0 +1,24 @@
+ManifestFileVersion: 0
+CRC: 2146643046
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d5ad4308f1a88d71d486756c6ead7993
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 6e524609455c7cfb29b5bab3f5d3ec7c
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+Assets:
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2Orientation.txt
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2_0.png
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2_1.png
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2Mesh.txt
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2Matrices.txt
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2_3.png
+- Assets/ASL/Room_Texture/Resources/Rooms/Room2/Room2_2.png
+Dependencies: []

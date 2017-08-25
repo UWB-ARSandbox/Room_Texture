@@ -169,7 +169,7 @@ namespace UWB_Texturing
             // Ensure that resources exist in project
             if (!File.Exists(Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName))
                 || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.CustomOrientation.CompileFilename(), roomName))
-                || !File.Exists(Config.Images.CompileFilename(0)))
+                || !File.Exists(Config.CustomOrientation.CompileAbsoluteAssetPath(Config.Images.CompileFilename(0), roomName)))
             {
                 //Debug.Log("Raw room resources do not exist. Ensure that items have been saved from room texturing device (e.g. Hololens)");
                 // Grab the raw resources
