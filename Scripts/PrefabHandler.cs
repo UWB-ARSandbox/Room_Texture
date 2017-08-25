@@ -15,10 +15,10 @@ namespace UWB_Texturing
             public static string GameObjectDoesNotExist = "Room prefab generation failed. Does Room object exist in the scene object hierarchy?";
             public static string PrefabDoesNotExist = "Room prefab does not exist.";
         }
-
-#if UNITY_EDITOR
+        
         public static void CreateRoomPrefab(GameObject obj)
         {
+#if UNITY_EDITOR
             if (obj != null)
             {
                 //AssetDatabase.CreateAsset(obj, "Assets/Room Texture/Resources/Test.obj");
@@ -64,7 +64,6 @@ namespace UWB_Texturing
                 //Config.RoomObject.GameObjectName = originalRoomName;
             }
 
-#if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();
 #endif
         }
@@ -127,6 +126,5 @@ namespace UWB_Texturing
             string[] roomNames = RoomManager.GetAllRoomNames();
             DeletePrefab(roomNames);
         }
-#endif
     }
 }

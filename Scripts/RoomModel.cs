@@ -13,9 +13,9 @@ namespace UWB_Texturing
     public class RoomModel : MonoBehaviour
     {
         #region Fields
-        private static Matrix4x4[] worldToCameraMatrixArray;
-        private static Matrix4x4[] projectionMatrixArray;
-        private static Matrix4x4[] localToWorldMatrixArray;
+        private Matrix4x4[] worldToCameraMatrixArray;
+        private Matrix4x4[] projectionMatrixArray;
+        private Matrix4x4[] localToWorldMatrixArray;
         //public static Texture2DArray TextureArray;
         //private static Material[] MeshMaterials;
         #endregion
@@ -24,9 +24,21 @@ namespace UWB_Texturing
 
         void Start()
         {
-            string roomName = Config.RoomObject.GameObjectName;
+            string originalRoomName = Config.RoomObject.GameObjectName;
+
+
+            //string roomName = Config.RoomObject.GameObjectName;
+            string roomName = gameObject.name;
+            Config.RoomObject.GameObjectName = roomName;
             // Deep copy matrix data
             string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
+
+            Debug.debugging = true;
+
+            Debug.Log("Matrix array filepath = " + matrixArrayFilepath);
+
+            Debug.debugging = false;
+
             if (File.Exists(matrixArrayFilepath))
             {
                 GetMatrixData(roomName, matrixArrayFilepath, out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
@@ -34,13 +46,15 @@ namespace UWB_Texturing
 
             // Start the refresh cycle for the matrix data
             BeginShaderRefreshCycle(Config.RoomObject.RecommendedShaderRefreshTime);
+
+            Config.RoomObject.GameObjectName = originalRoomName;
         }
 
         public void SetMatrixData(Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4[] localToWorldMatrixArray)
         {
-            RoomModel.worldToCameraMatrixArray = worldToCameraMatrixArray;
-            RoomModel.projectionMatrixArray = projectionMatrixArray;
-            RoomModel.localToWorldMatrixArray = localToWorldMatrixArray;
+            this.worldToCameraMatrixArray = worldToCameraMatrixArray;
+            this.projectionMatrixArray = projectionMatrixArray;
+            this.localToWorldMatrixArray = localToWorldMatrixArray;
         }
 
         public void GetMatrixData(string roomName, string matrixArrayFilepath, out Matrix4x4[] worldToCameraMatrixArray, out Matrix4x4[] projectionMatrixArray, out Matrix4x4[] localToWorldMatrixArray)
