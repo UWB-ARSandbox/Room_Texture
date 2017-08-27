@@ -32,13 +32,9 @@ namespace UWB_Texturing
             Config.RoomObject.GameObjectName = roomName;
             // Deep copy matrix data
             string matrixArrayFilepath = Config.MatrixArray.CompileAbsoluteAssetPath(Config.MatrixArray.CompileFilename(), roomName);
-
-            Debug.debugging = true;
-
+            
             Debug.Log("Matrix array filepath = " + matrixArrayFilepath);
-
-            Debug.debugging = false;
-
+            
             if (File.Exists(matrixArrayFilepath))
             {
                 GetMatrixData(roomName, matrixArrayFilepath, out worldToCameraMatrixArray, out projectionMatrixArray, out localToWorldMatrixArray);
