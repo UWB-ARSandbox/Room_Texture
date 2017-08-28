@@ -468,7 +468,8 @@ namespace UWB_Texturing
                 /// Name for the standalone, textured room mesh GameObject asset 
                 /// bundle.
                 /// </summary>
-                private static string name = (RoomObject.GameObjectName + "prefab").ToLower();//"roomprefab";
+                //private static string name = (RoomObject.GameObjectName + "prefab").ToLower();//"roomprefab";
+                private static string name = (RoomObject.GameObjectName).ToLower();
                 public static string Name
                 {
                     get
@@ -479,14 +480,15 @@ namespace UWB_Texturing
                     {
                         if (!string.IsNullOrEmpty(value))
                         {
-                            if (!value.Contains("prefab"))
-                            {
-                                name = (value + "prefab").ToLower();
-                            }
-                            else
-                            {
-                                name = value.ToLower();
-                            }
+                            //if (!value.Contains("prefab"))
+                            //{
+                            //    name = (value + "prefab").ToLower();
+                            //}
+                            //else
+                            //{
+                            //    name = value.ToLower();
+                            //}
+                            name = value.ToLower();
                         }
                     }
                 }
@@ -500,7 +502,8 @@ namespace UWB_Texturing
                 {
                     if (!e.NewName.Equals(e.OldName))
                     {
-                        Name = (e.NewName + "prefab").ToLower();
+                        //Name = (e.NewName + "prefab").ToLower();
+                        Name = (e.NewName).ToLower();
 
                         // Insert additional logic here
                     }
