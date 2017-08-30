@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if WINDOWS_UWP
 using UnityEngine.Windows.Speech; // Voice Commands
+#endif
 
 namespace UWB_Texturing
 {
