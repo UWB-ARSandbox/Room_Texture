@@ -654,10 +654,26 @@ namespace UWB_Texturing
                 for (int i = 0; i < room.transform.childCount; i++)
                 {
                     GameObject child = room.transform.GetChild(i).gameObject;
-                    Material childMaterial = MaterialManager.GenerateRoomMaterial(i, texArray, worldToCameraArray, projectionArray, localToWorldArray[i]);
-                    child.GetComponent<MeshRenderer>().sharedMaterial = childMaterial;
+                    // ERROR TESTING
+                    //Material childMaterial = MaterialManager.GenerateRoomMaterial(i, texArray, worldToCameraArray, projectionArray, localToWorldArray[i]);
+                    //child.GetComponent<MeshRenderer>().sharedMaterial = childMaterial;
+                    //child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
+
+                    child.GetComponent<MeshRenderer>().sharedMaterial.shader = Shader.Find(Config.Shader.QualifiedFilenameWithoutExtension);
                     child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
+
                 }
+
+                //for(int i = 0; i < room.transform.childCount; i++)
+                //{
+                //    GameObject child = room.transform.GetChild(i).gameObject;
+                //    Material childMaterial = roomTextureBundle.LoadAsset<Material>(Config.Material.CompileFilename(i));
+                //    if(childMaterial == null)
+                //        UnityEngine.Debug.Log("Material not found!");
+                //    child.GetComponent<MeshRenderer>().sharedMaterial = childMaterial;
+                //    child.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_MyArr", texArray);
+                //}
+
 
                 // Unload the room texture bundle to reduce memory usage
                 // false indicates you are creating a COPY of the items inside 

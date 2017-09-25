@@ -128,6 +128,18 @@ namespace UWB_Texturing
         public static Material GenerateRoomMaterial(int roomChildIndex, Texture2DArray texArray, Matrix4x4[] worldToCameraMatrixArray, Matrix4x4[] projectionMatrixArray, Matrix4x4 localToWorldMatrix)
         {
             Material mat = new Material(Shader.Find(Config.Shader.QualifiedFilenameWithoutExtension));
+
+            Debug.debugging = true;
+            if(Shader.Find(Config.Shader.QualifiedFilenameWithoutExtension) == null)
+            {
+                Debug.Log("Shader not found!");
+            }
+            else
+            {
+                Debug.Log("Shader found with name " + Config.Shader.QualifiedFilenameWithoutExtension);
+            }
+            Debug.debugging = false;
+
             mat.name = Config.Material.CompileMaterialName(roomChildIndex);
             SetShaderParams(mat, texArray, worldToCameraMatrixArray, projectionMatrixArray, localToWorldMatrix);
 
@@ -201,7 +213,8 @@ namespace UWB_Texturing
             //string[] files = Directory.GetFiles(materialDirectory);
             for(int i = 0; i < files.Length; i++)
             {
-                if (files[i].Contains(Config.Material.FilenameRoot))
+                if (files[i].Contains(Config.Material.FilenameRoot)
+                    && !files[i].Contains("meta"))
                 {
                     ++numMaterials;
                 }

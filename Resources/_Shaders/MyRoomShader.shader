@@ -19,7 +19,7 @@
 			#pragma target 3.5 // only Unity 3.5 and up can have texture arrays passed in
 			#include "UnityCG.cginc"
 			#define MAX_SIZE 30
-			#pragma only_renderers d3d11 // https://docs.unity3d.com/Manual/SL-ShaderPrograms.html
+			#pragma only_renderers d3d11 gles3 // https://docs.unity3d.com/Manual/SL-ShaderPrograms.html
 
 			struct appdata
 			{
