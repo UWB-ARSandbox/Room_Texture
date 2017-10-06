@@ -158,8 +158,8 @@ namespace UWB_Texturing
             }
             roomObject.AddComponent<RoomModel>();
 
-            // Integrate it into the UWB Network
-            roomObject.AddComponent<UWBPhotonTransformView>();
+            //// Integrate it into the UWB Network
+            //roomObject.AddComponent<UWBPhotonTransformView>();
 
             return roomObject;
         }
