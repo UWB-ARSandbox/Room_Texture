@@ -1,0 +1,13 @@
+===Current Features===
+-- Tango Room Meshing
+-- Hololens Room Meshing (outdated)
+-- Tango, Android, Hololens, Vive, and PC Config file settings
+-- Room Directory Tagging (Tango only)
+-- Oculus Android plugin removed
+-- 3rd Party Libraries (Oculus, Tango, and PUN) included
+-- SteamVR specific to Vive project and Oculus project
+-- Android plugins specific to Tango project
+
+===Unintegrated Features===
+-- iOS compatibility - ARToolkit dependency requires 5.6
+-- Facial recognition - ARToolkit dependency requires 5.6
